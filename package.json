@@ -1,0 +1,27 @@
+{
+  "name": "event-led-lights",
+  "version": "1.0.0",
+  "description": "Firebase-powered LED light synchronization app for events",
+  "main": "index.html",
+  "scripts": {
+    "start": "firebase serve",
+    "build": "echo 'No build step required for static files'",
+    "deploy": "firebase deploy",
+    "setup": "firebase init"
+  },
+  "keywords": [
+    "firebase",
+    "led",
+    "events",
+    "lights",
+    "synchronization"
+  ],
+  "author": "Event LED Lights",
+  "license": "MIT",
+  "devDependencies": {
+    "firebase-tools": "^12.4.0"
+  },
+  "dependencies": {
+    "firebase": "^11.8.1"
+  }
+}

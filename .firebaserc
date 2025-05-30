@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "firebase deploy --project your-project-id": "spartafest-light-show"
+  },
+  "targets": {},
+  "etags": {}
+}
