@@ -788,6 +788,18 @@
         const testButton = document.getElementById('testPattern');
         const emergencyButton = document.getElementById('emergencyStop');
         
+        const shardCount = 10;
+
+        function broadcastToShards(command) {
+            const batch = db.batch();
+            for (let i = 0; i < shardCount; i++) {
+                const ref = db.collection('commands_sharded').doc(`shard_${i}`);
+                batch.set(ref, command, { merge: true });
+            }
+            batch.commit()
+                .then(() => console.log('✅ Command sent to all shards.'))
+                .catch(err => console.error('❌ Broadcast failed:', err));
+        }
         // Authentication
         function login() {
             const email = adminUsername.value.trim();
@@ -1189,12 +1201,7 @@
             // Debounce to reduce Firestore writes
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                db.collection('commands').doc('latest').set(command, { merge: true })
-                    .then(() => console.log('Command updated.'))
-                    .catch(error => {
-                        console.error('Error sending command:', error);
-                        alert('Failed to send command. Check connection.');
-                    });
+                broadcastToShards(command);
             }, 300); // Adjust delay as needed
         }
         

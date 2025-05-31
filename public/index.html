@@ -341,6 +341,10 @@
         function isLowBandwidth() {
             return connection && (connection.saveData || /2g/.test(connection.effectiveType));
         }
+        const shardCount = 10;
+        let userShardIndex = parseInt(localStorage.getItem('shardIndex')) || Math.floor(Math.random() * shardCount);
+        localStorage.setItem('shardIndex', userShardIndex);  // persist
+        const userShardDoc = `shard_${userShardIndex}`;
         let currentListener = null;
         let animationTimeouts = [];
         let lastAppliedCommand = null;
@@ -384,8 +388,10 @@
             }
         }
         
+        // Update the user count by a delta (positive or negative)
         function updateUserCount(delta) {
             const ref = db.collection('system').doc('userCount');
+
             db.runTransaction(async (transaction) => {
                 const doc = await transaction.get(ref);
                 const current = doc.exists ? doc.data().count || 0 : 0;
@@ -517,58 +523,54 @@
         }
         
         // Listen for real-time updates from admin
-        function startListening() {
-            if (isLowBandwidth()) {
-                console.warn('⏸️ Skipping Firestore sync: Low bandwidth or Save-Data mode');
-                return;
-            }
-
+        function startShardListener() {
             try {
-                currentListener = db.collection('commands')
-                    .doc('latest')
+                currentListener = db.collection('commands_sharded')
+                    .doc(userShardDoc)
                     .onSnapshot((doc) => {
                         updateConnectionStatus(true);
                         lastUpdate.textContent = new Date().toLocaleTimeString();
 
                         if (doc.exists) {
                             const data = doc.data();
-                            console.log('Received updated command:', data);
+                            console.log('📥 Received sharded command:', data);
                             applyLightEffect(data);
                         }
                     }, (error) => {
-                        console.error('Firestore error:', error);
+                        console.error('⚠️ Shard listener error:', error);
                         updateConnectionStatus(false);
-                        setTimeout(startListening, 3000);
+                        setTimeout(startShardListener, 3000);
                     });
             } catch (error) {
-                console.error('Failed to start listening:', error);
+                console.error('❌ Failed to start shard listener:', error);
                 updateConnectionStatus(false);
-                setTimeout(startListening, 3000);
+                setTimeout(startShardListener, 3000);
             }
         }
         
         // Initialize device info
         function initDeviceInfo() {
-            createUserIfNotExists()
             deviceId.textContent = deviceUID;
         }
 
+        // Create a user in Firestore if not already present
         function createUserIfNotExists() {
             const userRef = db.collection('users').doc(deviceUID);
 
             userRef.get().then((doc) => {
                 if (!doc.exists) {
                     userRef.set({
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        userAgent: navigator.userAgent,
-                        type: 'led_device'
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     }).then(() => {
                         console.log('✅ New user added to Firestore');
                         updateUserCount(1);
                     });
                 } else {
                     console.log('ℹ️ User already exists:', deviceUID);
+                    // Don't change user count if user already exists
                 }
+            }).catch((err) => {
+                console.error('Failed to check or create user:', err);
             });
         }
         
@@ -576,9 +578,9 @@
         function init() {
             console.log('Initializing LED Light User App...');
             console.log('Device ID:', deviceUID);
-            
+            createUserIfNotExists();
             initDeviceInfo();
-            startListening();
+            startShardListener();
             
             // Keep screen awake (request)
             if ('wakeLock' in navigator) {
@@ -604,27 +606,19 @@
                 }
             } else {
                 console.log('🔌 Resuming listener (tab visible)');
-                startListening();
+                startShardListener();
             }
         });
 
         // Handle online/offline status
         window.addEventListener('online', () => {
             console.log('Device back online');
-            startListening();
+            startShardListener();
         });
         
         window.addEventListener('offline', () => {
             console.log('Device offline');
             updateConnectionStatus(false);
-        });
-        
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (currentListener) {
-                currentListener();
-            }
-            clearAllEffects();
         });
         
         // Error handling for uncaught errors
