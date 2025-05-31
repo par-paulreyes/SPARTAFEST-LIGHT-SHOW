@@ -35,28 +35,71 @@
             position: relative;
         }
         
+        /* 3-Light Pattern Display */
+        .pattern-lights {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            gap: 50px;
+            z-index: 10;
+        }
+        
+        .pattern-light {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+        }
+        
         #status {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
-            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px 18px;
+            border-radius: 25px;
             font-size: 14px;
             z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         #connectionStatus {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: #ff4444;
-            margin-right: 8px;
+            margin-right: 10px;
             display: inline-block;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
         }
         
         #connectionStatus.connected {
             background: #44ff44;
+            box-shadow: 0 0 10px rgba(68, 255, 68, 0.5);
+        }
+        
+        .device-info {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
         
         .admin-link {
@@ -64,19 +107,42 @@
             bottom: 20px;
             right: 20px;
             background: rgba(255, 255, 255, 0.1);
-            padding: 8px 12px;
-            border-radius: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
             text-decoration: none;
             color: white;
-            font-size: 12px;
+            font-size: 13px;
             opacity: 0.7;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .admin-link:hover {
             opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
         
+        .effect-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .effect-indicator.visible {
+            opacity: 1;
+        }
+        
+        /* Enhanced Animations */
         .strobe {
             animation: strobe 0.1s infinite;
         }
@@ -89,6 +155,28 @@
             animation: fade 2s ease-in-out infinite;
         }
         
+        .wave {
+            animation: wave 1.5s ease-in-out infinite;
+        }
+        
+        .rainbow {
+            animation: rainbow 3s linear infinite;
+        }
+        
+        .flash {
+            animation: flash 0.3s ease-out;
+        }
+        
+        /* Pattern-specific animations */
+        .sequence-1 { animation-delay: 0s; }
+        .sequence-2 { animation-delay: 0.3s; }
+        .sequence-3 { animation-delay: 0.6s; }
+        
+        .alternate-odd { animation: pulse 1s ease-in-out infinite; }
+        .alternate-even { animation: pulse 1s ease-in-out infinite reverse; }
+        
+        .chase { animation: wave 1s ease-in-out infinite; }
+        
         @keyframes strobe {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0.1; }
@@ -96,33 +184,94 @@
         
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 0.7; }
         }
         
         @keyframes fade {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.2; }
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+        
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        
+        @keyframes flash {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
         }
         
         .loading {
             text-align: center;
             opacity: 0.7;
+            font-size: 1.2em;
         }
         
         .loading::after {
             content: '';
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid white;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 10px;
+            margin-left: 15px;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* Beat effect styles */
+        .beat-flash {
+            animation: beatFlash 0.2s ease-out;
+        }
+        
+        @keyframes beatFlash {
+            0% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: brightness(1.5);
+            }
+            100% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+        }
+        
+        /* Emergency mode */
+        .emergency {
+            background: #000 !important;
+            opacity: 0 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .pattern-light {
+                width: 120px;
+                height: 120px;
+                font-size: 2em;
+            }
+            
+            .pattern-lights {
+                gap: 30px;
+                flex-direction: column;
+            }
+            
+            #status, .device-info {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
         }
     </style>
 </head>
@@ -133,11 +282,27 @@
             <span id="statusText">Connecting...</span>
         </div>
         
+        <div class="device-info" id="deviceInfo">
+            Device ID: <span id="deviceId">Loading...</span><br>
+            Last Update: <span id="lastUpdate">Never</span>
+        </div>
+        
+        <div class="effect-indicator" id="effectIndicator">
+            Current Effect: <span id="currentEffect">None</span>
+        </div>
+        
         <div class="loading" id="loadingMessage">
             Waiting for event commands...
         </div>
         
-        <a href="admin.html" class="admin-link">Admin Panel</a>
+        <!-- 3-Light Pattern Display -->
+        <div class="pattern-lights" id="patternLights">
+            <div class="pattern-light" id="light1">1</div>
+            <div class="pattern-light" id="light2">2</div>
+            <div class="pattern-light" id="light3">3</div>
+        </div>
+        
+        <a href="admin.html" class="admin-link">🔧 Admin Panel</a>
     </div>
 
     <!-- Firebase SDKs -->
@@ -165,9 +330,45 @@
         const connectionStatus = document.getElementById('connectionStatus');
         const statusText = document.getElementById('statusText');
         const loadingMessage = document.getElementById('loadingMessage');
+        const deviceInfo = document.getElementById('deviceInfo');
+        const deviceId = document.getElementById('deviceId');
+        const lastUpdate = document.getElementById('lastUpdate');
+        const effectIndicator = document.getElementById('effectIndicator');
+        const currentEffect = document.getElementById('currentEffect');
+        const patternLights = document.getElementById('patternLights');
+        const light1 = document.getElementById('light1');
+        const light2 = document.getElementById('light2');
+        const light3 = document.getElementById('light3');
         
         let currentListener = null;
-        let strobeInterval = null;
+        let animationTimeouts = [];
+        let deviceUID = generateDeviceId();
+        let currentState = {
+            color: '#000000',
+            effect: 'solid',
+            intensity: 1,
+            speed: 1
+        };
+        
+        // Generate unique device ID
+        function generateDeviceId() {
+            const stored = localStorage.getItem('deviceUID');
+            if (stored) return stored;
+            
+            const uid = 'LED_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('deviceUID', uid);
+            return uid;
+        }
+        
+        // Update device presence
+        function updateDevicePresence() {
+            db.collection('users').doc(deviceUID).set({
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                type: 'led_device',
+                userAgent: navigator.userAgent,
+                status: 'active'
+            }).catch(err => console.log('Presence update failed:', err));
+        }
         
         // Update connection status
         function updateConnectionStatus(connected) {
@@ -175,68 +376,185 @@
                 connectionStatus.classList.add('connected');
                 statusText.textContent = 'Connected';
                 loadingMessage.style.display = 'none';
+                updateDevicePresence();
             } else {
                 connectionStatus.classList.remove('connected');
-                statusText.textContent = 'Disconnected';
+                statusText.textContent = 'Reconnecting...';
                 loadingMessage.style.display = 'block';
+            }
+        }
+        
+        // Clear all animations and timeouts
+        function clearAllEffects() {
+            lightScreen.className = '';
+            patternLights.style.display = 'none';
+            
+            // Clear pattern light classes
+            [light1, light2, light3].forEach(light => {
+                light.className = 'pattern-light';
+            });
+            
+            // Clear timeouts
+            animationTimeouts.forEach(timeout => clearTimeout(timeout));
+            animationTimeouts = [];
+        }
+        
+        // Apply pattern effect
+        function applyPatternEffect(patternData, speed = 1) {
+            patternLights.style.display = 'flex';
+            lightScreen.style.background = '#000';
+            
+            const lights = [light1, light2, light3];
+            const colors = patternData.colors || ['#ff0000', '#00ff00', '#0000ff'];
+            const type = patternData.type || 'sequence';
+            
+            // Set base colors
+            lights.forEach((light, i) => {
+                light.style.background = colors[i % colors.length];
+            });
+            
+            // Apply pattern-specific animations
+            switch (type) {
+                case 'sequence':
+                    lights.forEach((light, i) => {
+                        light.classList.add(`sequence-${i + 1}`);
+                        light.style.animationDuration = (1 / speed) + 's';
+                    });
+                    break;
+                    
+                case 'alternate':
+                    lights.forEach((light, i) => {
+                        light.classList.add(i % 2 === 0 ? 'alternate-odd' : 'alternate-even');
+                        light.style.animationDuration = (1 / speed) + 's';
+                    });
+                    break;
+                    
+                case 'chase':
+                    lights.forEach((light, i) => {
+                        light.classList.add('chase');
+                        light.style.animationDelay = (i * 0.3 / speed) + 's';
+                        light.style.animationDuration = (1 / speed) + 's';
+                    });
+                    break;
+                    
+                case 'random':
+                    function randomize() {
+                        lights.forEach(light => {
+                            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                            light.style.background = randomColor;
+                        });
+                        
+                        const timeout = setTimeout(randomize, 500 / speed);
+                        animationTimeouts.push(timeout);
+                    }
+                    randomize();
+                    break;
             }
         }
         
         // Apply light effect
         function applyLightEffect(data) {
-            const { color, effect, intensity = 1 } = data;
+            const { 
+                color = '#000000', 
+                effect = 'solid', 
+                intensity = 1, 
+                speed = 1, 
+                pattern = null,
+                type = 'normal'
+            } = data;
             
-            // Clear any existing effects
-            lightScreen.className = '';
-            if (strobeInterval) {
-                clearInterval(strobeInterval);
-                strobeInterval = null;
+            clearAllEffects();
+            
+            // Update current state
+            currentState = { color, effect, intensity, speed };
+            
+            // Update effect indicator
+            currentEffect.textContent = effect.charAt(0).toUpperCase() + effect.slice(1);
+            effectIndicator.classList.add('visible');
+            setTimeout(() => effectIndicator.classList.remove('visible'), 3000);
+            
+            // Handle emergency stop
+            if (type === 'emergency') {
+                lightScreen.classList.add('emergency');
+                return;
             }
             
-            // Set background color
-            lightScreen.style.background = color || '#000000';
+            // Handle beat effects
+            if (type === 'beat') {
+                lightScreen.style.background = color;
+                lightScreen.style.opacity = intensity;
+                lightScreen.classList.add('beat-flash');
+                setTimeout(() => lightScreen.classList.remove('beat-flash'), 200);
+                return;
+            }
+            
+            // Handle pattern effect
+            if (effect === 'pattern' && pattern) {
+                applyPatternEffect(pattern, speed);
+                return;
+            }
+            
+            // Standard single-screen effects
+            patternLights.style.display = 'none';
+            lightScreen.style.background = color;
             lightScreen.style.opacity = intensity;
             
-            // Apply effect
+            // Apply animation effects
             switch (effect) {
                 case 'strobe':
                     lightScreen.classList.add('strobe');
+                    lightScreen.style.animationDuration = (0.1 / speed) + 's';
                     break;
+                    
                 case 'pulse':
                     lightScreen.classList.add('pulse');
+                    lightScreen.style.animationDuration = (1 / speed) + 's';
                     break;
+                    
                 case 'fade':
                     lightScreen.classList.add('fade');
+                    lightScreen.style.animationDuration = (2 / speed) + 's';
                     break;
+                    
+                case 'wave':
+                    lightScreen.classList.add('wave');
+                    lightScreen.style.animationDuration = (1.5 / speed) + 's';
+                    break;
+                    
+                case 'rainbow':
+                    lightScreen.classList.add('rainbow');
+                    lightScreen.style.animationDuration = (3 / speed) + 's';
+                    break;
+                    
                 case 'flash':
-                    // Quick flash effect
-                    lightScreen.style.opacity = '1';
-                    setTimeout(() => {
-                        lightScreen.style.opacity = '0.1';
-                    }, 100);
-                    setTimeout(() => {
-                        lightScreen.style.opacity = intensity;
-                    }, 200);
+                    lightScreen.classList.add('flash');
+                    lightScreen.style.animationDuration = (0.3 / speed) + 's';
                     break;
+                    
                 default:
-                    // Solid color
+                    // Solid color - no animation
                     break;
             }
         }
         
-        // Listen for real-time updates
+        // Listen for real-time updates from admin
         function startListening() {
             try {
-                currentListener = db.collection('eventControls')
-                    .doc('current')
-                    .onSnapshot((doc) => {
+                // Listen to the commands collection for new commands
+                currentListener = db.collection('commands')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .onSnapshot((snapshot) => {
                         updateConnectionStatus(true);
+                        lastUpdate.textContent = new Date().toLocaleTimeString();
                         
-                        if (doc.exists) {
-                            const data = doc.data();
-                            console.log('Received command:', data);
-                            applyLightEffect(data);
-                        }
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === 'added') {
+                                const data = change.doc.data();
+                                console.log('Received command:', data);
+                                applyLightEffect(data);
+                            }
+                        });
                     }, (error) => {
                         console.error('Firestore error:', error);
                         updateConnectionStatus(false);
@@ -244,6 +562,7 @@
                         // Retry connection after 3 seconds
                         setTimeout(startListening, 3000);
                     });
+                    
             } catch (error) {
                 console.error('Failed to start listening:', error);
                 updateConnectionStatus(false);
@@ -251,9 +570,20 @@
             }
         }
         
+        // Initialize device info
+        function initDeviceInfo() {
+            deviceId.textContent = deviceUID;
+            
+            // Update presence every 30 seconds
+            setInterval(updateDevicePresence, 30000);
+        }
+        
         // Initialize app
         function init() {
             console.log('Initializing LED Light User App...');
+            console.log('Device ID:', deviceUID);
+            
+            initDeviceInfo();
             startListening();
             
             // Keep screen awake (request)
@@ -262,6 +592,12 @@
                     console.log('Wake lock failed:', err);
                 });
             }
+            
+            // Prevent screen from going to sleep on mobile
+            document.addEventListener('touchstart', function() {}, {passive: true});
+            
+            // Initial presence update
+            updateDevicePresence();
         }
         
         // Start when page loads
@@ -269,9 +605,30 @@
         
         // Handle page visibility changes
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && !currentListener) {
-                startListening();
+            if (document.visibilityState === 'visible') {
+                if (!currentListener) {
+                    startListening();
+                }
+                updateDevicePresence();
+            } else {
+                // Update status to away when tab is hidden
+                db.collection('users').doc(deviceUID).update({
+                    status: 'away',
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(() => {});
             }
+        });
+        
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            console.log('Device back online');
+            startListening();
+            updateDevicePresence();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('Device offline');
+            updateConnectionStatus(false);
         });
         
         // Cleanup on page unload
@@ -279,10 +636,22 @@
             if (currentListener) {
                 currentListener();
             }
-            if (strobeInterval) {
-                clearInterval(strobeInterval);
-            }
+            clearAllEffects();
+            
+            // Update final presence
+            db.collection('users').doc(deviceUID).update({
+                status: 'offline',
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(() => {});
         });
+        
+        // Error handling for uncaught errors
+        window.addEventListener('error', (event) => {
+            console.error('Application error:', event.error);
+            updateConnectionStatus(false);
+        });
+        
+        console.log('🎭 Event LED User Interface Loaded');
     </script>
 </body>
 </html>
