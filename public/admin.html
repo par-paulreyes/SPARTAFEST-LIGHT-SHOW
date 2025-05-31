@@ -878,9 +878,10 @@
         
         function startUserCountListener() {
             // Listen for active users
-            db.collection('users').onSnapshot((snapshot) => {
-                userCount = snapshot.docs.length;
-                userCountEl.textContent = userCount;
+            db.collection('system').doc('userCount').onSnapshot((doc) => {
+                if (doc.exists) {
+                    userCountEl.textContent = doc.data().count || 0;
+                }
             });
         }
         
@@ -1167,6 +1168,9 @@
         }
         
         // Command system
+        let lastCommand = null;
+        let debounceTimer;
+
         function sendCommandToDevices(customCommand = null) {
             const command = customCommand || {
                 color: currentColor,
@@ -1178,15 +1182,20 @@
                 source: 'admin'
             };
 
-            // Update the 'latest' command instead of adding a new one
-            db.collection('commands').doc('latest').set(command, { merge: true })
-                .then(() => {
-                    console.log('Command updated.');
-                })
-                .catch(error => {
-                    console.error('Error sending command:', error);
-                    alert('Failed to send command. Check connection.');
-                });
+            // Avoid writing if the command hasn't changed
+            if (JSON.stringify(command) === JSON.stringify(lastCommand)) return;
+            lastCommand = command;
+
+            // Debounce to reduce Firestore writes
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                db.collection('commands').doc('latest').set(command, { merge: true })
+                    .then(() => console.log('Command updated.'))
+                    .catch(error => {
+                        console.error('Error sending command:', error);
+                        alert('Failed to send command. Check connection.');
+                    });
+            }, 300); // Adjust delay as needed
         }
         
         // Action buttons
@@ -1205,7 +1214,6 @@
         emergencyButton.addEventListener('click', () => {
             if (confirm('Emergency stop will turn off all lights. Continue?')) {
                 const emergencyCommand = {
-                    type: 'emergency',
                     color: '#000000',
                     effect: 'solid',
                     intensity: 0,

@@ -337,9 +337,22 @@
         const light1 = document.getElementById('light1');
         const light2 = document.getElementById('light2');
         const light3 = document.getElementById('light3');
-        
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        function isLowBandwidth() {
+            return connection && (connection.saveData || /2g/.test(connection.effectiveType));
+        }
         let currentListener = null;
         let animationTimeouts = [];
+        let lastAppliedCommand = null;
+        try {
+        const saved = localStorage.getItem('lastCommand');
+        if (saved) {
+            lastAppliedCommand = JSON.parse(saved);
+            applyLightEffect(lastAppliedCommand);
+        }
+        } catch (e) {
+        console.warn('Failed to parse saved command.');
+        }
         let deviceUID = generateDeviceId();
         let currentState = {
             color: '#000000',
@@ -371,6 +384,17 @@
             }
         }
         
+        function updateUserCount(delta) {
+            const ref = db.collection('system').doc('userCount');
+            db.runTransaction(async (transaction) => {
+                const doc = await transaction.get(ref);
+                const current = doc.exists ? doc.data().count || 0 : 0;
+                transaction.set(ref, { count: current + delta }, { merge: true });
+            }).catch((err) => {
+                console.error('Failed to update user count:', err);
+            });
+        }
+
         // Clear all animations and timeouts
         function clearAllEffects() {
             lightScreen.className = '';
@@ -417,7 +441,7 @@
                 pattern = null,
                 type = 'normal'
             } = data;
-            
+            localStorage.setItem('lastCommand', JSON.stringify(data));
             clearAllEffects();
             
             // Update current state
@@ -494,6 +518,11 @@
         
         // Listen for real-time updates from admin
         function startListening() {
+            if (isLowBandwidth()) {
+                console.warn('⏸️ Skipping Firestore sync: Low bandwidth or Save-Data mode');
+                return;
+            }
+
             try {
                 currentListener = db.collection('commands')
                     .doc('latest')
@@ -531,16 +560,15 @@
                 if (!doc.exists) {
                     userRef.set({
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        userAgent: navigator.userAgent,
+                        type: 'led_device'
                     }).then(() => {
                         console.log('✅ New user added to Firestore');
-                    }).catch((error) => {
-                        console.error('❌ Failed to add user:', error);
+                        updateUserCount(1);
                     });
                 } else {
                     console.log('ℹ️ User already exists:', deviceUID);
                 }
-            }).catch((error) => {
-                console.error('❌ Error checking user existence:', error);
             });
         }
         
@@ -565,7 +593,21 @@
         
         // Start when page loads
         document.addEventListener('DOMContentLoaded', init);
-        
+
+        // Optimize Firestore reads by pausing listener when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (currentListener) {
+                    currentListener();  // stop Firestore listener
+                    currentListener = null;
+                    console.log('🔌 Listener paused (tab hidden)');
+                }
+            } else {
+                console.log('🔌 Resuming listener (tab visible)');
+                startListening();
+            }
+        });
+
         // Handle online/offline status
         window.addEventListener('online', () => {
             console.log('Device back online');
