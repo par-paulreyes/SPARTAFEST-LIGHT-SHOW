@@ -267,13 +267,6 @@
             color: white;
         }
         
-        .pattern-designer {
-            background: rgba(255, 255, 255, 0.5);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-        
         .pattern-lights {
             display: flex;
             gap: 15px;
@@ -579,7 +572,7 @@
     <div class="login-screen" id="loginScreen">
         <div class="login-form">
             <h2>🔐 Admin Access</h2>
-            <input type="text" id="adminUsername" placeholder="Username" autocomplete="username">
+            <input type="text" id="adminUsername" placeholder="Email" autocomplete="username">
             <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password">
             <button class="login-btn" id="loginBtn">Login</button>
             <div class="error-message" id="loginError"></div>
@@ -601,12 +594,8 @@
                 <div class="status-value" id="connectionStatus">Connecting...</div>
             </div>
             <div class="status-card">
-                <h3>👥 Active Users</h3>
+                <h3>👥 Users</h3>
                 <div class="status-value user-count" id="userCount">0</div>
-            </div>
-            <div class="status-card">
-                <h3>⚡ Commands Sent</h3>
-                <div class="status-value" id="commandCount">0</div>
             </div>
             <div class="status-card">
                 <h3>🎵 Music Status</h3>
@@ -649,17 +638,11 @@
             </div>
             
             <div class="pattern-designer" id="patternDesigner" style="display: none;">
-                <h4>🎯 3-Light Pattern Designer</h4>
-                <div class="pattern-lights">
-                    <div class="pattern-light" data-light="0" style="background: #ff0000;">1</div>
-                    <div class="pattern-light" data-light="1" style="background: #00ff00;">2</div>
-                    <div class="pattern-light" data-light="2" style="background: #0000ff;">3</div>
-                </div>
-                <div class="pattern-controls">
-                    <button class="pattern-btn" data-pattern="sequence">Sequence</button>
-                    <button class="pattern-btn" data-pattern="alternate">Alternate</button>
-                    <button class="pattern-btn" data-pattern="chase">Chase</button>
-                    <button class="pattern-btn" data-pattern="random">Random</button>
+                <h4>🎯 Custom Pattern Colors</h4>
+                <div class="custom-color" style="flex-wrap: wrap; justify-content: center;">
+                    <label>Color 1: <input type="color" class="pattern-color" data-index="0" value="#ff0000"></label>
+                    <label>Color 2: <input type="color" class="pattern-color" data-index="1" value="#00ff00"></label>
+                    <label>Color 3: <input type="color" class="pattern-color" data-index="2" value="#0000ff"></label>
                 </div>
             </div>
         </div>
@@ -745,19 +728,12 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
         
-        // Security Configuration - CHANGE THESE CREDENTIALS!
-        const ADMIN_CREDENTIALS = {
-            username: 'eventadmin',
-            password: 'SecurePass123!'
-        };
-        
         // State
         let currentColor = '#ff0000';
         let currentEffect = 'solid';
         let currentIntensity = 1;
         let currentSpeed = 1;
         let userCount = 0;
-        let commandCount = 0;
         let isAuthenticated = false;
         let musicSyncActive = false;
         let audioContext;
@@ -780,7 +756,6 @@
         const connectionCard = document.getElementById('connectionCard');
         const connectionStatus = document.getElementById('connectionStatus');
         const userCountEl = document.getElementById('userCount');
-        const commandCountEl = document.getElementById('commandCount');
         const musicStatusEl = document.getElementById('musicStatus');
         
         const colorButtons = document.querySelectorAll('.color-btn');
@@ -815,22 +790,24 @@
         
         // Authentication
         function login() {
-            const username = adminUsername.value.trim();
+            const email = adminUsername.value.trim();
             const password = adminPassword.value.trim();
-            
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                isAuthenticated = true;
-                loginScreen.classList.add('hidden');
-                mainApp.style.display = 'block';
-                localStorage.setItem('adminAuth', 'true');
-                loginError.textContent = '';
-                init();
-            } else {
-                loginError.textContent = 'Invalid credentials. Access denied.';
-                adminPassword.value = '';
-            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    isAuthenticated = true;
+                    loginScreen.classList.add('hidden');
+                    mainApp.style.display = 'block';
+                    localStorage.setItem('adminAuth', 'true');
+                    loginError.textContent = '';
+                    init();
+                })
+                .catch((error) => {
+                    loginError.textContent = 'Login failed: ' + error.message;
+                    adminPassword.value = '';
+                });
         }
-        
+
         function logout() {
             isAuthenticated = false;
             localStorage.removeItem('adminAuth');
@@ -842,8 +819,6 @@
         function checkAuth() {
             const savedAuth = localStorage.getItem('adminAuth');
             if (savedAuth === 'true') {
-                // Re-verify with a simple prompt for security
-                const verify = prompt('Enter admin password to continue:');
                 if (verify === ADMIN_CREDENTIALS.password) {
                     isAuthenticated = true;
                     loginScreen.classList.add('hidden');
@@ -865,6 +840,11 @@
         
         // Initialize app
         function init() {
+            const savedColor = localStorage.getItem('customColor');
+                if (savedColor) {
+                    currentColor = savedColor;
+                    customColor.value = savedColor;
+                }
             updateConnectionStatus();
             setupColorControls();
             setupEffectControls();
@@ -874,6 +854,13 @@
             setupPreview();
             startUserCountListener();
             updatePreview();
+            const savedPatternColors = JSON.parse(localStorage.getItem('patternColors'));
+                if (savedPatternColors && Array.isArray(savedPatternColors)) {
+                    customPattern.colors = savedPatternColors;
+                    document.querySelectorAll('.pattern-color').forEach((input, index) => {
+                        input.value = savedPatternColors[index] || input.value;
+                    });
+                }
         }
         
         // Firebase connection and user count
@@ -892,31 +879,9 @@
         function startUserCountListener() {
             // Listen for active users
             db.collection('users').onSnapshot((snapshot) => {
-                const activeUsers = snapshot.docs.filter(doc => {
-                    const data = doc.data();
-                    const lastSeen = data.lastSeen?.toDate();
-                    const now = new Date();
-                    return lastSeen && (now - lastSeen) < 300000; // 5 minutes
-                });
-                
-                userCount = activeUsers.length;
+                userCount = snapshot.docs.length;
                 userCountEl.textContent = userCount;
             });
-            
-            // Update admin presence
-            const adminRef = db.collection('users').doc('admin');
-            adminRef.set({
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-                role: 'admin',
-                status: 'online'
-            });
-            
-            // Keep admin presence updated
-            setInterval(() => {
-                adminRef.update({
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }, 30000);
         }
         
         // Color control
@@ -933,6 +898,7 @@
             customColor.addEventListener('change', (e) => {
                 colorButtons.forEach(b => b.classList.remove('active'));
                 currentColor = e.target.value;
+                localStorage.setItem('customColor', currentColor); // Save
                 updatePreview();
             });
         }
@@ -958,26 +924,18 @@
         
         // Pattern designer
         function setupPatternDesigner() {
-            patternLights.forEach((light, index) => {
-                light.addEventListener('click', () => {
-                    const newColor = prompt('Enter hex color (e.g., #ff0000):', customPattern.colors[index]);
-                    if (newColor && /^#[0-9A-F]{6}$/i.test(newColor)) {
-                        customPattern.colors[index] = newColor;
-                        light.style.background = newColor;
-                        updatePreview();
-                    }
-                });
-            });
-            
-            patternButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    patternButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    customPattern.type = btn.dataset.pattern;
+            const patternColorPickers = document.querySelectorAll('.pattern-color');
+
+            patternColorPickers.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    customPattern.colors[index] = e.target.value;
+                    localStorage.setItem('patternColors', JSON.stringify(customPattern.colors)); // Save
                     updatePreview();
                 });
             });
         }
+
         
         // Slider controls
         function setupSliderControls() {
@@ -1130,15 +1088,15 @@
         function triggerBeatEffect() {
             const beatColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
             const randomColor = beatColors[Math.floor(Math.random() * beatColors.length)];
-            
+
             const command = {
                 type: 'beat',
                 color: randomColor,
-                effect: 'flash',
-                intensity: currentIntensity,
+                effect: 'flash', // enhanced for stronger visual
+                intensity: 1, // always full brightness on beat
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
-            
+
             sendCommandToDevices(command);
         }
         
@@ -1187,44 +1145,25 @@
         }
         
         function animatePattern() {
-            const lights = Array.from(previewLights);
-            
-            switch (customPattern.type) {
-                case 'sequence':
-                    lights.forEach((light, i) => {
-                        setTimeout(() => {
-                            light.style.transform = 'scale(1.2)';
-                            setTimeout(() => {
-                                light.style.transform = 'scale(1)';
-                            }, 200);
-                        }, i * (300 / currentSpeed));
-                    });
-                    break;
-                    
-                case 'alternate':
-                    lights.forEach((light, i) => {
-                        if (i % 2 === 0) {
-                            light.classList.add('pulse');
-                        }
-                    });
-                    break;
-                    
-                case 'chase':
-                    lights.forEach((light, i) => {
-                        light.style.animationDelay = (i * 0.2 / currentSpeed) + 's';
-                        light.classList.add('wave');
-                    });
-                    break;
-                    
-                case 'random':
-                    lights.forEach(light => {
-                        const delay = Math.random() * (1000 / currentSpeed);
-                        setTimeout(() => {
-                            light.style.background = customPattern.colors[Math.floor(Math.random() * customPattern.colors.length)];
-                        }, delay);
-                    });
-                    break;
+            let colorIndex = 0;
+            const colors = customPattern.colors;
+
+            function showNextColor() {
+                previewLights.forEach((light, index) => {
+                    if (index === 0) {
+                        light.style.background = colors[colorIndex % colors.length];
+                        light.style.opacity = currentIntensity;
+                    } else {
+                        light.style.background = '#000';
+                        light.style.opacity = 0.2;
+                    }
+                });
+
+                colorIndex++;
+                setTimeout(showNextColor, 600 / currentSpeed);
             }
+
+            showNextColor();
         }
         
         // Command system
@@ -1238,12 +1177,11 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 source: 'admin'
             };
-            
-            // Send to Firebase
-            db.collection('commands').add(command)
+
+            // Update the 'latest' command instead of adding a new one
+            db.collection('commands').doc('latest').set(command, { merge: true })
                 .then(() => {
-                    commandCount++;
-                    commandCountEl.textContent = commandCount;
+                    console.log('Command updated.');
                 })
                 .catch(error => {
                     console.error('Error sending command:', error);
@@ -1254,7 +1192,6 @@
         // Action buttons
         sendButton.addEventListener('click', () => {
             sendCommandToDevices();
-            alert('Command sent to all devices!');
         });
         
         testButton.addEventListener('click', () => {
@@ -1279,16 +1216,6 @@
                 sendCommandToDevices(emergencyCommand);
                 stopMusicSync();
                 alert('Emergency stop activated!');
-            }
-        });
-        
-        // Security: Clear authentication on page unload
-        window.addEventListener('beforeunload', () => {
-            if (isAuthenticated) {
-                db.collection('users').doc('admin').update({
-                    status: 'offline',
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                });
             }
         });
         

@@ -301,8 +301,6 @@
             <div class="pattern-light" id="light2">2</div>
             <div class="pattern-light" id="light3">3</div>
         </div>
-        
-        <a href="admin.html" class="admin-link">🔧 Admin Panel</a>
     </div>
 
     <!-- Firebase SDKs -->
@@ -360,23 +358,12 @@
             return uid;
         }
         
-        // Update device presence
-        function updateDevicePresence() {
-            db.collection('users').doc(deviceUID).set({
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-                type: 'led_device',
-                userAgent: navigator.userAgent,
-                status: 'active'
-            }).catch(err => console.log('Presence update failed:', err));
-        }
-        
         // Update connection status
         function updateConnectionStatus(connected) {
             if (connected) {
                 connectionStatus.classList.add('connected');
                 statusText.textContent = 'Connected';
                 loadingMessage.style.display = 'none';
-                updateDevicePresence();
             } else {
                 connectionStatus.classList.remove('connected');
                 statusText.textContent = 'Reconnecting...';
@@ -401,55 +388,23 @@
         
         // Apply pattern effect
         function applyPatternEffect(patternData, speed = 1) {
-            patternLights.style.display = 'flex';
+            patternLights.style.display = 'none';
             lightScreen.style.background = '#000';
-            
-            const lights = [light1, light2, light3];
+
             const colors = patternData.colors || ['#ff0000', '#00ff00', '#0000ff'];
-            const type = patternData.type || 'sequence';
-            
-            // Set base colors
-            lights.forEach((light, i) => {
-                light.style.background = colors[i % colors.length];
-            });
-            
-            // Apply pattern-specific animations
-            switch (type) {
-                case 'sequence':
-                    lights.forEach((light, i) => {
-                        light.classList.add(`sequence-${i + 1}`);
-                        light.style.animationDuration = (1 / speed) + 's';
-                    });
-                    break;
-                    
-                case 'alternate':
-                    lights.forEach((light, i) => {
-                        light.classList.add(i % 2 === 0 ? 'alternate-odd' : 'alternate-even');
-                        light.style.animationDuration = (1 / speed) + 's';
-                    });
-                    break;
-                    
-                case 'chase':
-                    lights.forEach((light, i) => {
-                        light.classList.add('chase');
-                        light.style.animationDelay = (i * 0.3 / speed) + 's';
-                        light.style.animationDuration = (1 / speed) + 's';
-                    });
-                    break;
-                    
-                case 'random':
-                    function randomize() {
-                        lights.forEach(light => {
-                            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                            light.style.background = randomColor;
-                        });
-                        
-                        const timeout = setTimeout(randomize, 500 / speed);
-                        animationTimeouts.push(timeout);
-                    }
-                    randomize();
-                    break;
+            let colorIndex = 0;
+
+            function showNextColor() {
+                const color = colors[colorIndex % colors.length];
+                lightScreen.style.background = color;
+                lightScreen.style.opacity = patternData.intensity || 1;
+
+                colorIndex++;
+                const timeout = setTimeout(showNextColor, 600 / speed);
+                animationTimeouts.push(timeout);
             }
+
+            showNextColor();
         }
         
         // Apply light effect
@@ -540,29 +495,22 @@
         // Listen for real-time updates from admin
         function startListening() {
             try {
-                // Listen to the commands collection for new commands
                 currentListener = db.collection('commands')
-                    .orderBy('timestamp', 'desc')
-                    .limit(1)
-                    .onSnapshot((snapshot) => {
+                    .doc('latest')
+                    .onSnapshot((doc) => {
                         updateConnectionStatus(true);
                         lastUpdate.textContent = new Date().toLocaleTimeString();
-                        
-                        snapshot.docChanges().forEach((change) => {
-                            if (change.type === 'added') {
-                                const data = change.doc.data();
-                                console.log('Received command:', data);
-                                applyLightEffect(data);
-                            }
-                        });
+
+                        if (doc.exists) {
+                            const data = doc.data();
+                            console.log('Received updated command:', data);
+                            applyLightEffect(data);
+                        }
                     }, (error) => {
                         console.error('Firestore error:', error);
                         updateConnectionStatus(false);
-                        
-                        // Retry connection after 3 seconds
                         setTimeout(startListening, 3000);
                     });
-                    
             } catch (error) {
                 console.error('Failed to start listening:', error);
                 updateConnectionStatus(false);
@@ -572,10 +520,28 @@
         
         // Initialize device info
         function initDeviceInfo() {
+            createUserIfNotExists()
             deviceId.textContent = deviceUID;
-            
-            // Update presence every 30 seconds
-            setInterval(updateDevicePresence, 30000);
+        }
+
+        function createUserIfNotExists() {
+            const userRef = db.collection('users').doc(deviceUID);
+
+            userRef.get().then((doc) => {
+                if (!doc.exists) {
+                    userRef.set({
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    }).then(() => {
+                        console.log('✅ New user added to Firestore');
+                    }).catch((error) => {
+                        console.error('❌ Failed to add user:', error);
+                    });
+                } else {
+                    console.log('ℹ️ User already exists:', deviceUID);
+                }
+            }).catch((error) => {
+                console.error('❌ Error checking user existence:', error);
+            });
         }
         
         // Initialize app
@@ -595,35 +561,15 @@
             
             // Prevent screen from going to sleep on mobile
             document.addEventListener('touchstart', function() {}, {passive: true});
-            
-            // Initial presence update
-            updateDevicePresence();
         }
         
         // Start when page loads
         document.addEventListener('DOMContentLoaded', init);
         
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                if (!currentListener) {
-                    startListening();
-                }
-                updateDevicePresence();
-            } else {
-                // Update status to away when tab is hidden
-                db.collection('users').doc(deviceUID).update({
-                    status: 'away',
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                }).catch(() => {});
-            }
-        });
-        
         // Handle online/offline status
         window.addEventListener('online', () => {
             console.log('Device back online');
             startListening();
-            updateDevicePresence();
         });
         
         window.addEventListener('offline', () => {
@@ -637,12 +583,6 @@
                 currentListener();
             }
             clearAllEffects();
-            
-            // Update final presence
-            db.collection('users').doc(deviceUID).update({
-                status: 'offline',
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(() => {});
         });
         
         // Error handling for uncaught errors
