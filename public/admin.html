@@ -312,93 +312,6 @@
             color: white;
         }
         
-        .music-section {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 15px;
-            padding: 20px;
-        }
-        
-        .music-upload {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-        
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: -9999px;
-        }
-        
-        .file-input-label {
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .file-input-label:hover {
-            transform: translateY(-2px);
-        }
-        
-        .music-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .music-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .play-btn {
-            background: #28a745;
-            color: white;
-        }
-        
-        .stop-btn {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .music-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .visualizer {
-            width: 100%;
-            height: 80px;
-            background: #000;
-            border-radius: 10px;
-            margin: 15px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .visualizer-bar {
-            position: absolute;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to top, #667eea, #764ba2);
-            transition: height 0.1s ease;
-        }
-        
         .slider-control {
             margin: 20px 0;
         }
@@ -565,6 +478,67 @@
             .action-buttons { flex-direction: column; }
             .action-btn { min-width: unset; }
         }
+
+        .toast {
+            background-color: #333;
+            color: #fff;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 0.95em;
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.4s forwards, fadeOut 0.4s 3s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        .refresh-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-size: 1em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 8px 18px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Add spinning icon on hover */
+        .refresh-btn::before {
+            content: "⟳";
+            display: inline-block;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .refresh-btn:hover::before {
+            transform: rotate(360deg);
+        }
+
+
     </style>
 </head>
 <body>
@@ -583,8 +557,8 @@
     
     <div class="container" id="mainApp">
         <div class="header">
-            <h1>🎭 Event Light Control</h1>
-            <p>Advanced admin control panel with music sync</p>
+            <h1>SPARTAFEST LIGHT SHOW</h1>
+            <p>Advanced admin control panel</p>
             <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
         
@@ -594,36 +568,26 @@
                 <div class="status-value" id="connectionStatus">Connecting...</div>
             </div>
             <div class="status-card">
-                <h3>👥 Users</h3>
+                <button class="refresh-btn" id="refreshUserCount"> Users </button>
                 <div class="status-value user-count" id="userCount">0</div>
             </div>
             <div class="status-card">
-                <h3>🎵 Music Status</h3>
-                <div class="status-value" id="musicStatus">Stopped</div>
+                <h3> Action </h3>
+                <button class="action-btn primary-btn" id="sendCommand"> Send Command </button>
             </div>
         </div>
         
         <div class="control-section">
-            <h3>🎨 Color Selection</h3>
-            <div class="color-grid">
-                <button class="color-btn" style="background: #ff0000;" data-color="#ff0000"></button>
-                <button class="color-btn" style="background: #00ff00;" data-color="#00ff00"></button>
-                <button class="color-btn" style="background: #0000ff;" data-color="#0000ff"></button>
-                <button class="color-btn" style="background: #ffff00;" data-color="#ffff00"></button>
-                <button class="color-btn" style="background: #ff00ff;" data-color="#ff00ff"></button>
-                <button class="color-btn" style="background: #00ffff;" data-color="#00ffff"></button>
-                <button class="color-btn" style="background: #ff8000;" data-color="#ff8000"></button>
-                <button class="color-btn" style="background: #8000ff;" data-color="#8000ff"></button>
-                <button class="color-btn" style="background: #ffffff;" data-color="#ffffff"></button>
-                <button class="color-btn" style="background: #000000;" data-color="#000000"></button>
-            </div>
-            
-            <div class="custom-color">
-                <input type="color" id="customColor" value="#ff0000">
-                <span>Custom Color</span>
+            <h3>📱 Preview</h3>
+            <div class="preview" id="preview">
+                <div class="preview-pattern" id="previewPattern">
+                    <div class="preview-light"></div>
+                    <div class="preview-light"></div>
+                    <div class="preview-light"></div>
+                </div>
             </div>
         </div>
-        
+
         <div class="control-section">
             <h3>✨ Effects & Patterns</h3>
             <div class="effect-grid">
@@ -648,31 +612,26 @@
         </div>
         
         <div class="control-section">
-            <h3>🎵 Music Synchronization</h3>
-            <div class="music-section">
-                <div class="music-upload">
-                    <div class="file-input-wrapper">
-                        <input type="file" id="musicFile" accept="audio/*">
-                        <label for="musicFile" class="file-input-label">📁 Upload Music</label>
-                    </div>
-                    <span id="fileName">No file selected</span>
-                </div>
-                
-                <div class="music-controls">
-                    <button class="music-btn play-btn" id="playMusic">▶️ Play</button>
-                    <button class="music-btn stop-btn" id="stopMusic">⏹️ Stop</button>
-                    <button class="music-btn" id="syncLights" style="background: #667eea; color: white;">🎆 Sync Lights</button>
-                </div>
-                
-                <div class="visualizer" id="visualizer"></div>
-                
-                <div class="slider-control">
-                    <label for="sensitivity">🎚️ Beat Sensitivity: <span id="sensitivityValue">50%</span></label>
-                    <input type="range" id="sensitivity" min="10" max="100" value="50">
-                </div>
+            <h3>🎨 Color Selection</h3>
+            <div class="color-grid">
+                <button class="color-btn" style="background: #ff0000;" data-color="#ff0000"></button>
+                <button class="color-btn" style="background: #00ff00;" data-color="#00ff00"></button>
+                <button class="color-btn" style="background: #0000ff;" data-color="#0000ff"></button>
+                <button class="color-btn" style="background: #ffff00;" data-color="#ffff00"></button>
+                <button class="color-btn" style="background: #ff00ff;" data-color="#ff00ff"></button>
+                <button class="color-btn" style="background: #00ffff;" data-color="#00ffff"></button>
+                <button class="color-btn" style="background: #ff8000;" data-color="#ff8000"></button>
+                <button class="color-btn" style="background: #8000ff;" data-color="#8000ff"></button>
+                <button class="color-btn" style="background: #ffffff;" data-color="#ffffff"></button>
+                <button class="color-btn" style="background: #000000;" data-color="#000000"></button>
+            </div>
+            
+            <div class="custom-color">
+                <input type="color" id="customColor" value="#ff0000">
+                <span>Custom Color</span>
             </div>
         </div>
-        
+    
         <div class="control-section">
             <div class="slider-control">
                 <label for="speed">⚡ Effect Speed: <span id="speedValue">1x</span></label>
@@ -685,26 +644,15 @@
             </div>
         </div>
         
-        <div class="control-section">
-            <h3>📱 Preview</h3>
-            <div class="preview" id="preview">
-                <div class="preview-pattern" id="previewPattern">
-                    <div class="preview-light"></div>
-                    <div class="preview-light"></div>
-                    <div class="preview-light"></div>
-                </div>
-            </div>
-        </div>
-        
         <div class="action-buttons">
-            <button class="action-btn primary-btn" id="sendCommand">🚀 Send to All Devices</button>
-            <button class="action-btn secondary-btn" id="testPattern">🧪 Test Pattern</button>
+            <button class="action-btn primary-btn" id="standbyBtn">📴 Standby Mode</button>
             <button class="action-btn emergency-btn" id="emergencyStop">🚨 Emergency Stop</button>
+            <button class="action-btn emergency-btn" id="clearAllBtn">⚠️ Clear Databases</button>
         </div>
     </div>
 
-    <!-- Audio element for music playback -->
-    <audio id="audioPlayer" style="display: none;"></audio>
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 99999;"></div>
+
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -712,20 +660,705 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     
     <script>
-        // Firebase configuration - REPLACE WITH YOUR CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyCHkiw5mKCQtauICu10DU3_omvcgmUbmec",
-            authDomain: "spartafest-light-show.firebaseapp.com",
-            projectId: "spartafest-light-show",
-            storageBucket: "spartafest-light-show.firebasestorage.app",
-            messagingSenderId: "438044433117",
-            appId: "1:438044433117:web:523ae33d8bf9f2131ed934",
-            measurementId: "G-EWH9RF2Q46"
-        };
-        
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const firebaseConfigs = [
+            {
+                "apiKey": "AIzaSyCHkiw5mKCQtauICu10DU3_omvcgmUbmec",
+                "authDomain": "spartafest-light-show.firebaseapp.com",
+                "projectId": "spartafest-light-show",
+                "storageBucket": "spartafest-light-show.firebasestorage.app",
+                "messagingSenderId": "438044433117",
+                "appId": "1:438044433117:web:523ae33d8bf9f2131ed934"
+            },
+            {
+                "apiKey": "AIzaSyBLTAL6XGY3we3h59oS6l7mqUiQzBn8H0M",
+                "authDomain": "spartafest-light-show-f9608.firebaseapp.com",
+                "projectId": "spartafest-light-show-f9608",
+                "storageBucket": "spartafest-light-show-f9608.firebasestorage.app",
+                "messagingSenderId": "970442612141",
+                "appId": "1:970442612141:web:8e67654abfba5e379f5524"
+            },
+            {
+                "apiKey": "AIzaSyB8kIXsZTDWLv3sOU7oXxKGRBtFc0ZXnzU",
+                "authDomain": "spartafest-light-show-2fc17.firebaseapp.com",
+                "projectId": "spartafest-light-show-2fc17",
+                "storageBucket": "spartafest-light-show-2fc17.firebasestorage.app",
+                "messagingSenderId": "575025203672",
+                "appId": "1:575025203672:web:3e33fc83b8851c681b0aad"
+            },
+            {
+                "apiKey": "AIzaSyCRCeiJ-LEyEH8wHXf3Eh92whKj0OuEMnw",
+                "authDomain": "spartafest-light-show-d5bd1.firebaseapp.com",
+                "projectId": "spartafest-light-show-d5bd1",
+                "storageBucket": "spartafest-light-show-d5bd1.firebasestorage.app",
+                "messagingSenderId": "221806972239",
+                "appId": "1:221806972239:web:f595dcd3dec3ff0c0e893a"
+            },
+            {
+                "apiKey": "AIzaSyCNYbIGLAhF1PawsoTFYjQGn9LaofKbKc0",
+                "authDomain": "spartafest-light-show-34048.firebaseapp.com",
+                "projectId": "spartafest-light-show-34048",
+                "storageBucket": "spartafest-light-show-34048.firebasestorage.app",
+                "messagingSenderId": "86595145364",
+                "appId": "1:86595145364:web:32854f60d2c2bce41a6e81"
+            },
+            {
+                "apiKey": "AIzaSyDBNf_L7pFDzhy-4c814VenF5mcoN9E7d4",
+                "authDomain": "spartafest-light-show-511b5.firebaseapp.com",
+                "projectId": "spartafest-light-show-511b5",
+                "storageBucket": "spartafest-light-show-511b5.firebasestorage.app",
+                "messagingSenderId": "219110318684",
+                "appId": "1:219110318684:web:312693a8d03cbd7b6afc99"
+            },
+            {
+                "apiKey": "AIzaSyAmmex08U_3h67_j6tLxB6Y97pBrUxoZgU",
+                "authDomain": "spartafest-light-show-aca73.firebaseapp.com",
+                "projectId": "spartafest-light-show-aca73",
+                "storageBucket": "spartafest-light-show-aca73.firebasestorage.app",
+                "messagingSenderId": "378962049746",
+                "appId": "1:378962049746:web:b028618bc971d6397bcb0b"
+            },
+            {
+                "apiKey": "AIzaSyCx24SxXOrbZN_KngbZt1Mzvqyk1P_sbrc",
+                "authDomain": "spartafest-light-show-caa4b.firebaseapp.com",
+                "projectId": "spartafest-light-show-caa4b",
+                "storageBucket": "spartafest-light-show-caa4b.firebasestorage.app",
+                "messagingSenderId": "98785134551",
+                "appId": "1:98785134551:web:d3f9fae2650cc9cef1ed92"
+            },
+            {
+                "apiKey": "AIzaSyBeWaotNNd24V0gJBkdm1zH1ReGUM7rL7g",
+                "authDomain": "login-6bf6c.firebaseapp.com",
+                "projectId": "login-6bf6c",
+                "storageBucket": "login-6bf6c.firebasestorage.app",
+                "messagingSenderId": "584216397876",
+                "appId": "1:584216397876:web:c2a51aee9eadf6f1386261"
+            },
+            {
+                "apiKey": "AIzaSyBFXDihFCY2ujjCUnfQCBhSLb6CYZhdZ18",
+                "authDomain": "spartafest-light-show-c857a.firebaseapp.com",
+                "projectId": "spartafest-light-show-c857a",
+                "storageBucket": "spartafest-light-show-c857a.firebasestorage.app",
+                "messagingSenderId": "526741058778",
+                "appId": "1:526741058778:web:0d7b0d5ea2fbefcebaa1e3"
+            },
+            {
+                "apiKey": "AIzaSyAc7KcsurTG5aUZiQoY3oXs0NJ6eD1C_8k",
+                "authDomain": "spartafest-light-show-2.firebaseapp.com",
+                "projectId": "spartafest-light-show-2",
+                "storageBucket": "spartafest-light-show-2.firebasestorage.app",
+                "messagingSenderId": "891237947797",
+                "appId": "1:891237947797:web:263d00a12cf626817f7e9c"
+            },
+            {
+                "apiKey": "AIzaSyB8CRVVHoco8Eo2Kgnivz4V_L2Xl24Fq7Q",
+                "authDomain": "spartafest-light-show-3.firebaseapp.com",
+                "projectId": "spartafest-light-show-3",
+                "storageBucket": "spartafest-light-show-3.firebasestorage.app",
+                "messagingSenderId": "739528906805",
+                "appId": "1:739528906805:web:8ee4fc9d7eacb976a2f97c"
+            },
+            {
+                "apiKey": "AIzaSyDxxsbxCvSbu3FdmZf2wrfMSc3CbOX2Z5A",
+                "authDomain": "spartafest-light-show-73925.firebaseapp.com",
+                "projectId": "spartafest-light-show-73925",
+                "storageBucket": "spartafest-light-show-73925.firebasestorage.app",
+                "messagingSenderId": "950212727438",
+                "appId": "1:950212727438:web:5d40e97d0a087cc6c26fdf"
+            },
+            {
+                "apiKey": "AIzaSyDrJtVcWcrNQISQIUE09tVdG4CNgKKdWUU",
+                "authDomain": "spartafest-light-show-1.firebaseapp.com",
+                "projectId": "spartafest-light-show-1",
+                "storageBucket": "spartafest-light-show-1.firebasestorage.app",
+                "messagingSenderId": "824918389420",
+                "appId": "1:824918389420:web:5f9670a7baade372a16509"
+            },
+            {
+                "apiKey": "AIzaSyA-Os8fVgNOgnw_oY9bvjsHMjAEm7f9ab0",
+                "authDomain": "spartafest-light-show-5.firebaseapp.com",
+                "projectId": "spartafest-light-show-5",
+                "storageBucket": "spartafest-light-show-5.firebasestorage.app",
+                "messagingSenderId": "72451860916",
+                "appId": "1:72451860916:web:3f7b859be5ec771ca6aae1"
+            },
+            {
+                "apiKey": "AIzaSyACAx5p0oXSlyZX6813_QDnIvXwNMNHFFE",
+                "authDomain": "spartafest-light-show-6.firebaseapp.com",
+                "projectId": "spartafest-light-show-6",
+                "storageBucket": "spartafest-light-show-6.firebasestorage.app",
+                "messagingSenderId": "620027996670",
+                "appId": "1:620027996670:web:7474757f52bcfc6e5f38af"
+            },
+            {
+                "apiKey": "AIzaSyDg-2_cq5dyZed3GI4mLOR5Tb1-lk6dUSg",
+                "authDomain": "spartafest-light-show-7.firebaseapp.com",
+                "projectId": "spartafest-light-show-7",
+                "storageBucket": "spartafest-light-show-7.firebasestorage.app",
+                "messagingSenderId": "830383004522",
+                "appId": "1:830383004522:web:ca701f35fee5cad5956313"
+            },
+            {
+                "apiKey": "AIzaSyC17oKO54nAnXbsxW5LUwdJve9A0DIMJyg",
+                "authDomain": "spartafest-light-show-682f1.firebaseapp.com",
+                "projectId": "spartafest-light-show-682f1",
+                "storageBucket": "spartafest-light-show-682f1.firebasestorage.app",
+                "messagingSenderId": "1010757733582",
+                "appId": "1:1010757733582:web:d10784526f69ecd5a0149f"
+            },
+            {
+                "apiKey": "AIzaSyCJw8YcpQCvurFjKlo175ZH_rp_d5X937k",
+                "authDomain": "spartafest-light-show-9.firebaseapp.com",
+                "projectId": "spartafest-light-show-9",
+                "storageBucket": "spartafest-light-show-9.firebasestorage.app",
+                "messagingSenderId": "114098478169",
+                "appId": "1:114098478169:web:eba7b2e72507374cb1e548"
+            },
+            {
+                "apiKey": "AIzaSyA6JsCx0P0VlN_w33PsQef5gogB6LYkLd8",
+                "authDomain": "spartafest-light-show-10.firebaseapp.com",
+                "projectId": "spartafest-light-show-10",
+                "storageBucket": "spartafest-light-show-10.firebasestorage.app",
+                "messagingSenderId": "304579628364",
+                "appId": "1:304579628364:web:270e8fba53df42c71c13e9"
+            },
+            {
+                "apiKey": "AIzaSyBjL0yx6xNCnwJfjFwJihKzdqPPWfos-Gk",
+                "authDomain": "spartafest-light-show-11.firebaseapp.com",
+                "projectId": "spartafest-light-show-11",
+                "storageBucket": "spartafest-light-show-11.firebasestorage.app",
+                "messagingSenderId": "647501946356",
+                "appId": "1:647501946356:web:728a4d1def8ce838b32da1"
+            },
+            {
+                "apiKey": "AIzaSyAn2eSRr5xVSRdpifi7kwEiUTiE_jjtrD4",
+                "authDomain": "spartafest-light-show-1-51360.firebaseapp.com",
+                "projectId": "spartafest-light-show-1-51360",
+                "storageBucket": "spartafest-light-show-1-51360.firebasestorage.app",
+                "messagingSenderId": "473571829499",
+                "appId": "1:473571829499:web:d3793758c8508454f2b25e"
+            },
+            {
+                "apiKey": "AIzaSyC6XnRnbtAbLJS9cGVanzPufejzwTuzmnE",
+                "authDomain": "spartafest-light-show-2-d5a6c.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-d5a6c",
+                "storageBucket": "spartafest-light-show-2-d5a6c.firebasestorage.app",
+                "messagingSenderId": "842825346224",
+                "appId": "1:842825346224:web:68f54e5e59a0a4aa48df75"
+            },
+            {
+                "apiKey": "AIzaSyC5y8m5UhwopnB0tvKE3tMLzrN6y8FHSDA",
+                "authDomain": "spartafest-light-show-3-7b3fa.firebaseapp.com",
+                "projectId": "spartafest-light-show-3-7b3fa",
+                "storageBucket": "spartafest-light-show-3-7b3fa.firebasestorage.app",
+                "messagingSenderId": "627770503337",
+                "appId": "1:627770503337:web:d0774e7f0b9cd3a0a339b8"
+            },
+            {
+                "apiKey": "AIzaSyAY5yxXE4La2WYVbae7okte_y3OyEaaN84",
+                "authDomain": "spartafest-light-show-4.firebaseapp.com",
+                "projectId": "spartafest-light-show-4",
+                "storageBucket": "spartafest-light-show-4.firebasestorage.app",
+                "messagingSenderId": "28051173128",
+                "appId": "1:28051173128:web:8dfca1edffdb6f3c68c6bd"
+            },
+            {
+                "apiKey": "AIzaSyBu1jMonN2D8mZms343Ppzgiw95evGn3mI",
+                "authDomain": "spartafest-light-show-5-334d8.firebaseapp.com",
+                "projectId": "spartafest-light-show-5-334d8",
+                "storageBucket": "spartafest-light-show-5-334d8.firebasestorage.app",
+                "messagingSenderId": "51601270422",
+                "appId": "1:51601270422:web:66e9d0a542936249b384b7"
+            },
+            {
+                "apiKey": "AIzaSyC4d3lZX2804-5ArYgizmqtXBD7AN1yhYs",
+                "authDomain": "spartafest-light-show-67fc1.firebaseapp.com",
+                "projectId": "spartafest-light-show-67fc1",
+                "storageBucket": "spartafest-light-show-67fc1.firebasestorage.app",
+                "messagingSenderId": "382252956072",
+                "appId": "1:382252956072:web:c873c00b9776631305059d"
+            },
+            {
+                "apiKey": "AIzaSyCCRIlryDzqN9nbLzDK1pNGrNQAeWT8qUE",
+                "authDomain": "spartafest-light-show-7-5bf5d.firebaseapp.com",
+                "projectId": "spartafest-light-show-7-5bf5d",
+                "storageBucket": "spartafest-light-show-7-5bf5d.firebasestorage.app",
+                "messagingSenderId": "321620575364",
+                "appId": "1:321620575364:web:5ba42368ce1900d6af6ed1"
+            },
+            {
+                "apiKey": "AIzaSyBfrcY8Oq1av2dW0Zlf24_PNHj_ZXMceR4",
+                "authDomain": "spartafest-light-show-2f818.firebaseapp.com",
+                "projectId": "spartafest-light-show-2f818",
+                "storageBucket": "spartafest-light-show-2f818.firebasestorage.app",
+                "messagingSenderId": "442176875751",
+                "appId": "1:442176875751:web:8fa0b815647a5dd56d4642"
+            },
+            {
+                "apiKey": "AIzaSyA2hTA_G8EWzjzeQkvqwlOkJv29fjDBmyQ",
+                "authDomain": "spartafest-light-show-9-a5ddb.firebaseapp.com",
+                "projectId": "spartafest-light-show-9-a5ddb",
+                "storageBucket": "spartafest-light-show-9-a5ddb.firebasestorage.app",
+                "messagingSenderId": "97179297135",
+                "appId": "1:97179297135:web:6512ad907904fd39cf749a"
+            },
+            {
+                "apiKey": "AIzaSyCd_yyCCWYpns9d5XTjH-15yz-1HB6HXis",
+                "authDomain": "spartafest-light-show-10-cb1ac.firebaseapp.com",
+                "projectId": "spartafest-light-show-10-cb1ac",
+                "storageBucket": "spartafest-light-show-10-cb1ac.firebasestorage.app",
+                "messagingSenderId": "400526619561",
+                "appId": "1:400526619561:web:091f7c76319d822fbd0ab8"
+            },
+            {
+                "apiKey": "AIzaSyCjj4ITm6AECBp7rwYZYV2HSJp3ar79AMI",
+                "authDomain": "spartafest-light-show-1-efdc9.firebaseapp.com",
+                "projectId": "spartafest-light-show-1-efdc9",
+                "storageBucket": "spartafest-light-show-1-efdc9.firebasestorage.app",
+                "messagingSenderId": "378487304704",
+                "appId": "1:378487304704:web:f1fd1156f03dc8213ddee5"
+            },
+            {
+                "apiKey": "AIzaSyAYOwdRLSYBfA2K161GZVfHh7ngQUxmUQU",
+                "authDomain": "spartafest-light-show-3-f5bac.firebaseapp.com",
+                "projectId": "spartafest-light-show-3-f5bac",
+                "storageBucket": "spartafest-light-show-3-f5bac.firebasestorage.app",
+                "messagingSenderId": "979955640966",
+                "appId": "1:979955640966:web:89048342ecfb672d4bff07"
+            },
+            {
+                "apiKey": "AIzaSyD_ahlxz2tretunnJaZ749Te8s_s6nmx0Q",
+                "authDomain": "spartafest-light-show-2-7d915.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-7d915",
+                "storageBucket": "spartafest-light-show-2-7d915.firebasestorage.app",
+                "messagingSenderId": "1064352295909",
+                "appId": "1:1064352295909:web:1fcefae484b6ecb7c35d0c"
+            },
+            {
+                "apiKey": "AIzaSyDXL7iSdXrP0WEl-dX8oMkd5vWk7BExnrI",
+                "authDomain": "spartafest-light-show-4-8594e.firebaseapp.com",
+                "projectId": "spartafest-light-show-4-8594e",
+                "storageBucket": "spartafest-light-show-4-8594e.firebasestorage.app",
+                "messagingSenderId": "302967657276",
+                "appId": "1:302967657276:web:23cefb786ccbc59acc0439"
+            },
+            {
+                "apiKey": "AIzaSyDMmcGsDP8ZJjgzdUU0vjXpxtFR9H87BT0",
+                "authDomain": "spartafest-light-show-5-e7320.firebaseapp.com",
+                "projectId": "spartafest-light-show-5-e7320",
+                "storageBucket": "spartafest-light-show-5-e7320.firebasestorage.app",
+                "messagingSenderId": "637399487911",
+                "appId": "1:637399487911:web:865f8defc7d0b18c385282"
+            },
+            {
+                "apiKey": "AIzaSyDfsfbiS_V9hhWkwTynD6n2pBzs41O5J3Q",
+                "authDomain": "spartafest-light-show-6-51346.firebaseapp.com",
+                "projectId": "spartafest-light-show-6-51346",
+                "storageBucket": "spartafest-light-show-6-51346.firebasestorage.app",
+                "messagingSenderId": "600885866546",
+                "appId": "1:600885866546:web:4dea8145756463a1f08c2b"
+            },
+            {
+                "apiKey": "AIzaSyD8hHnPJ2EZttUiciWXe2Df42w6tWPK4qA",
+                "authDomain": "spartafest-light-show-8.firebaseapp.com",
+                "projectId": "spartafest-light-show-8",
+                "storageBucket": "spartafest-light-show-8.firebasestorage.app",
+                "messagingSenderId": "175029137801",
+                "appId": "1:175029137801:web:ca04c962f9b91469067158"
+            },
+            {
+                "apiKey": "AIzaSyBptkDkLDlk1BqNGInN7KYsCyfAXhlRDKo",
+                "authDomain": "spartafest-light-show-7-d0a54.firebaseapp.com",
+                "projectId": "spartafest-light-show-7-d0a54",
+                "storageBucket": "spartafest-light-show-7-d0a54.firebasestorage.app",
+                "messagingSenderId": "370501194624",
+                "appId": "1:370501194624:web:763d5469d34ca149586765"
+            },
+            {
+                "apiKey": "AIzaSyAgM1bFx-NYM_R3575PKmt7xmsd8KzWC0M",
+                "authDomain": "spartafest-light-show-9-a074a.firebaseapp.com",
+                "projectId": "spartafest-light-show-9-a074a",
+                "storageBucket": "spartafest-light-show-9-a074a.firebasestorage.app",
+                "messagingSenderId": "753013919671",
+                "appId": "1:753013919671:web:5f3320e45222271b96e232"
+            },
+            {
+                "apiKey": "AIzaSyBr08MaX1vouI6h9qrNvBOeDR4P5dBp8LA",
+                "authDomain": "spartafest-light-show-10-6206d.firebaseapp.com",
+                "projectId": "spartafest-light-show-10-6206d",
+                "storageBucket": "spartafest-light-show-10-6206d.firebasestorage.app",
+                "messagingSenderId": "884857746855",
+                "appId": "1:884857746855:web:1128d56981665b79b57282"
+            },
+            {
+                "apiKey": "AIzaSyD9V82WvV2m7jZbjpKomZQzZAO_j4PcgxM",
+                "authDomain": "spartafest-light-show-11-9da2c.firebaseapp.com",
+                "projectId": "spartafest-light-show-11-9da2c",
+                "storageBucket": "spartafest-light-show-11-9da2c.firebasestorage.app",
+                "messagingSenderId": "742707673527",
+                "appId": "1:742707673527:web:047b9475846fb192625032"
+            },
+            {
+                "apiKey": "AIzaSyB5jW7Xv_xo35JDCjQ8TMmH6I2LoPt9R0U",
+                "authDomain": "spartafest-light-show-1-8d747.firebaseapp.com",
+                "projectId": "spartafest-light-show-1-8d747",
+                "storageBucket": "spartafest-light-show-1-8d747.firebasestorage.app",
+                "messagingSenderId": "164272036816",
+                "appId": "1:164272036816:web:0e1670211109c90e71b7d5"
+            },
+            {
+                "apiKey": "AIzaSyBq-v6FipVttot_W4BjOyLt98PBD9bveIE",
+                "authDomain": "spartafest-light-show-2-875d2.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-875d2",
+                "storageBucket": "spartafest-light-show-2-875d2.firebasestorage.app",
+                "messagingSenderId": "4988837433",
+                "appId": "1:4988837433:web:da9f1e151d39a4010037e8"
+            },
+            {
+                "apiKey": "AIzaSyA1ZE-A7Srtwxh9fIvNTPAL-VB7cPvQCl8",
+                "authDomain": "spartafest-light-show-4-24dd6.firebaseapp.com",
+                "projectId": "spartafest-light-show-4-24dd6",
+                "storageBucket": "spartafest-light-show-4-24dd6.firebasestorage.app",
+                "messagingSenderId": "301905579354",
+                "appId": "1:301905579354:web:3fab68ba3406807d02f763"
+            },
+            {
+                "apiKey": "AIzaSyAhxRzJybECoDExbc0L5RAVF344v12sBPY",
+                "authDomain": "spartafest-light-show-3-6fe77.firebaseapp.com",
+                "projectId": "spartafest-light-show-3-6fe77",
+                "storageBucket": "spartafest-light-show-3-6fe77.firebasestorage.app",
+                "messagingSenderId": "1045129913893",
+                "appId": "1:1045129913893:web:693f6b50ab6028d7b1c1cc"
+            },
+            {
+                "apiKey": "AIzaSyBBNZtZQeVI8cTLdngWsY-ZyE-lQFVvbrY",
+                "authDomain": "spartafest-light-show-5-c537c.firebaseapp.com",
+                "projectId": "spartafest-light-show-5-c537c",
+                "storageBucket": "spartafest-light-show-5-c537c.firebasestorage.app",
+                "messagingSenderId": "1082812115992",
+                "appId": "1:1082812115992:web:cd663dba4d64ad4314276d"
+            },
+            {
+                "apiKey": "AIzaSyDo0W9148CnsjRSC8OvG4tqhJn-dV1qpeU",
+                "authDomain": "spartafest-light-show-6-2f88e.firebaseapp.com",
+                "projectId": "spartafest-light-show-6-2f88e",
+                "storageBucket": "spartafest-light-show-6-2f88e.firebasestorage.app",
+                "messagingSenderId": "552726696993",
+                "appId": "1:552726696993:web:5849379796e686d1beff60"
+            },
+            {
+                "apiKey": "AIzaSyBQMcn9M_POwD3sxb-8YlwHumCdZJcEwho",
+                "authDomain": "spartafest-light-show-9-8e41c.firebaseapp.com",
+                "projectId": "spartafest-light-show-9-8e41c",
+                "storageBucket": "spartafest-light-show-9-8e41c.firebasestorage.app",
+                "messagingSenderId": "1018692456966",
+                "appId": "1:1018692456966:web:ab9f0fb0e037a68374e987"
+            },
+            {
+                "apiKey": "AIzaSyDu2qdJJo248-xwto1dy4wHdxm4bqgBZds",
+                "authDomain": "spartafest-light-show-7-6ab33.firebaseapp.com",
+                "projectId": "spartafest-light-show-7-6ab33",
+                "storageBucket": "spartafest-light-show-7-6ab33.firebasestorage.app",
+                "messagingSenderId": "39756895336",
+                "appId": "1:39756895336:web:764ed424e393556f9b57dd"
+            },
+            {
+                "apiKey": "AIzaSyCwAslZMLzO1fv5Qv3UmWBnQIeYoQ1tIgU",
+                "authDomain": "spartafest-light-show-8-30403.firebaseapp.com",
+                "projectId": "spartafest-light-show-8-30403",
+                "storageBucket": "spartafest-light-show-8-30403.firebasestorage.app",
+                "messagingSenderId": "109135025261",
+                "appId": "1:109135025261:web:4fec11be40ce8b3d275b64"
+            },
+            {
+                "apiKey": "AIzaSyBAdy3jhCCzo6sak7bnBZvXDbLLndpFXwc",
+                "authDomain": "spartafest-light-show-1-77d47.firebaseapp.com",
+                "projectId": "spartafest-light-show-1-77d47",
+                "storageBucket": "spartafest-light-show-1-77d47.firebasestorage.app",
+                "messagingSenderId": "72308500575",
+                "appId": "1:72308500575:web:7dd76263007ba7668593ea"
+            },
+            {
+                "apiKey": "AIzaSyBb1WWJgGo8GdUt7SuZd0M_vU1D0aJZ9YA",
+                "authDomain": "spartafest-light-show-3-e2de5.firebaseapp.com",
+                "projectId": "spartafest-light-show-3-e2de5",
+                "storageBucket": "spartafest-light-show-3-e2de5.firebasestorage.app",
+                "messagingSenderId": "809522421625",
+                "appId": "1:809522421625:web:53299cbc2da7bc95e7d9a8"
+            },
+            {
+                "apiKey": "AIzaSyD-kE5q6Znk3hH05Tn-2hhRaXn0flzq5bk",
+                "authDomain": "spartafest-light-show-2-f4d2b.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-f4d2b",
+                "storageBucket": "spartafest-light-show-2-f4d2b.firebasestorage.app",
+                "messagingSenderId": "535420977459",
+                "appId": "1:535420977459:web:cdb58180482abff614fe46"
+            },
+            {
+                "apiKey": "AIzaSyANr66hnmRNafkgKBNTXdqjK6EtxCkB948",
+                "authDomain": "spartafest-light-show-5-bf3a7.firebaseapp.com",
+                "projectId": "spartafest-light-show-5-bf3a7",
+                "storageBucket": "spartafest-light-show-5-bf3a7.firebasestorage.app",
+                "messagingSenderId": "591776558333",
+                "appId": "1:591776558333:web:7c2d47489f4518e2f5a294"
+            },
+            {
+                "apiKey": "AIzaSyC5Wo7pfvEPYtS96DDJZaoVai-Horp7wNw",
+                "authDomain": "spartafest-light-show-4-2f6e5.firebaseapp.com",
+                "projectId": "spartafest-light-show-4-2f6e5",
+                "storageBucket": "spartafest-light-show-4-2f6e5.firebasestorage.app",
+                "messagingSenderId": "275723495507",
+                "appId": "1:275723495507:web:7fb952d460097610193ea6"
+            },
+            {
+                "apiKey": "AIzaSyD_frbCDGk_wMJ1ANmmYtTIpUv8rlTUMxc",
+                "authDomain": "spartafest-light-show-6-b6514.firebaseapp.com",
+                "projectId": "spartafest-light-show-6-b6514",
+                "storageBucket": "spartafest-light-show-6-b6514.firebasestorage.app",
+                "messagingSenderId": "477257306730",
+                "appId": "1:477257306730:web:a293d769935e97b20df013"
+            },
+            {
+                "apiKey": "AIzaSyB4CCJbiSPgcz6w7-yUqA4hWh0NALIw2e8",
+                "authDomain": "spartafest-light-show-7-1769e.firebaseapp.com",
+                "projectId": "spartafest-light-show-7-1769e",
+                "storageBucket": "spartafest-light-show-7-1769e.firebasestorage.app",
+                "messagingSenderId": "473694478791",
+                "appId": "1:473694478791:web:c2ed988aa802b218bfb9e2"
+            },
+            {
+                "apiKey": "AIzaSyBLnzzod-__-Lx-4fbaRXQGXWd-cIoEYSk",
+                "authDomain": "spartafest-light-show-9-909e9.firebaseapp.com",
+                "projectId": "spartafest-light-show-9-909e9",
+                "storageBucket": "spartafest-light-show-9-909e9.firebasestorage.app",
+                "messagingSenderId": "121455085693",
+                "appId": "1:121455085693:web:62c15ce21fe016e05a4914"
+            },
+            {
+                "apiKey": "AIzaSyAJ9-GY6Zw-qLD5hwO6vgcCdzAJJCNOPAo",
+                "authDomain": "spartafest-light-show-8-cd783.firebaseapp.com",
+                "projectId": "spartafest-light-show-8-cd783",
+                "storageBucket": "spartafest-light-show-8-cd783.firebasestorage.app",
+                "messagingSenderId": "554354759234",
+                "appId": "1:554354759234:web:289c0ad62ff7c9aad37fdb"
+            },
+            {
+                "apiKey": "AIzaSyDZXAb9OUvwLcAMSS72-eIaBZIxaqiF6mc",
+                "authDomain": "spartafest-light-show-10-244ed.firebaseapp.com",
+                "projectId": "spartafest-light-show-10-244ed",
+                "storageBucket": "spartafest-light-show-10-244ed.firebasestorage.app",
+                "messagingSenderId": "1085232363225",
+                "appId": "1:1085232363225:web:da55f89b7e7aa25b6b30c8"
+            },
+            {
+                "apiKey": "AIzaSyCmta9DNKtDUQrVfS2jjO4sgEfV8nl2ysc",
+                "authDomain": "spartafest-light-show-11-80319.firebaseapp.com",
+                "projectId": "spartafest-light-show-11-80319",
+                "storageBucket": "spartafest-light-show-11-80319.firebasestorage.app",
+                "messagingSenderId": "600824057096",
+                "appId": "1:600824057096:web:5288736d31f0c6696f70bd"
+            },
+            {
+                "apiKey": "AIzaSyCfsrF6DpQfIbOmWgx9oGhn0r-Qo1grMHk",
+                "authDomain": "spartafest-light-show-1-c1acc.firebaseapp.com",
+                "projectId": "spartafest-light-show-1-c1acc",
+                "storageBucket": "spartafest-light-show-1-c1acc.firebasestorage.app",
+                "messagingSenderId": "786269942931",
+                "appId": "1:786269942931:web:a22bdffd7c662283f5c966"
+            },
+            {
+                "apiKey": "AIzaSyBRQiRn_zjWH98kAa-S5RX8eMUr70G9U9g",
+                "authDomain": "spartafest-light-show-2-a2e39.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-a2e39",
+                "storageBucket": "spartafest-light-show-2-a2e39.firebasestorage.app",
+                "messagingSenderId": "608097081755",
+                "appId": "1:608097081755:web:201addc24acd094221293e"
+            },
+            {
+                "apiKey": "AIzaSyCCf3-b2QqK06b1COyfWLk57O6Nfly6Oeg",
+                "authDomain": "spartafest-light-show-3-4e41d.firebaseapp.com",
+                "projectId": "spartafest-light-show-3-4e41d",
+                "storageBucket": "spartafest-light-show-3-4e41d.firebasestorage.app",
+                "messagingSenderId": "12240371495",
+                "appId": "1:12240371495:web:1c77d72f2964e7fd177302"
+            },
+            {
+                "apiKey": "AIzaSyDMLY4nBU9mF9LDvM1uO0c1bEC_oouJhRE",
+                "authDomain": "spartafest-light-show-4-2bfdb.firebaseapp.com",
+                "projectId": "spartafest-light-show-4-2bfdb",
+                "storageBucket": "spartafest-light-show-4-2bfdb.firebasestorage.app",
+                "messagingSenderId": "318286877309",
+                "appId": "1:318286877309:web:4086765380aa1670879714"
+            },
+            {
+                "apiKey": "AIzaSyBzDPxNosjkDwcbJnL9LzumM7-RZWPqZv0",
+                "authDomain": "spartafest-light-show-5-3f5c7.firebaseapp.com",
+                "projectId": "spartafest-light-show-5-3f5c7",
+                "storageBucket": "spartafest-light-show-5-3f5c7.firebasestorage.app",
+                "messagingSenderId": "231344058883",
+                "appId": "1:231344058883:web:26ef3477011b886e369436"
+            },
+            {
+                "apiKey": "AIzaSyD3dobUdVaNfUZp0buFvA9mWQg3d_RjXNA",
+                "authDomain": "spartafest-light-show-6-83bab.firebaseapp.com",
+                "projectId": "spartafest-light-show-6-83bab",
+                "storageBucket": "spartafest-light-show-6-83bab.firebasestorage.app",
+                "messagingSenderId": "307894962477",
+                "appId": "1:307894962477:web:6ce71b3f095412423b6ba4"
+            },
+            {
+                "apiKey": "AIzaSyClRPU8dl7fdM1-TFQIzQYdTpHuJxbT7o4",
+                "authDomain": "spartafest-light-show-7-9aecd.firebaseapp.com",
+                "projectId": "spartafest-light-show-7-9aecd",
+                "storageBucket": "spartafest-light-show-7-9aecd.firebasestorage.app",
+                "messagingSenderId": "281450366181",
+                "appId": "1:281450366181:web:b8f835932bdc8a8e1a800c"
+            },
+            {
+                "apiKey": "AIzaSyDV0AM9K4zktQZaUyBhF8gLiHUqc-C82EE",
+                "authDomain": "spartafest-light-show-8-85668.firebaseapp.com",
+                "projectId": "spartafest-light-show-8-85668",
+                "storageBucket": "spartafest-light-show-8-85668.firebasestorage.app",
+                "messagingSenderId": "406168936659",
+                "appId": "1:406168936659:web:14480441d906c3255e7426"
+            },
+            {
+                "apiKey": "AIzaSyDZVAz5hPNY6JYJNpADuh-XVHUxEPz33LE",
+                "authDomain": "spartafest-light-show-9-f81de.firebaseapp.com",
+                "projectId": "spartafest-light-show-9-f81de",
+                "storageBucket": "spartafest-light-show-9-f81de.firebasestorage.app",
+                "messagingSenderId": "211314006572",
+                "appId": "1:211314006572:web:3a8fd220755ccf54c60f89"
+            },
+            {
+                "apiKey": "AIzaSyDomDWAG2zpO0BvBRWXiK1j97yiSy-396Y",
+                "authDomain": "spartafest-light-show-10-e7c1c.firebaseapp.com",
+                "projectId": "spartafest-light-show-10-e7c1c",
+                "storageBucket": "spartafest-light-show-10-e7c1c.firebasestorage.app",
+                "messagingSenderId": "847889080683",
+                "appId": "1:847889080683:web:a6356177dfe6feafd52c2e"
+            },
+            {
+                "apiKey": "AIzaSyBUUuNR_ONxv_D-nFzqqwn93govNyagFZI",
+                "authDomain": "spartafest-light-show-2-1c5a2.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-1c5a2",
+                "storageBucket": "spartafest-light-show-2-1c5a2.firebasestorage.app",
+                "messagingSenderId": "255608691346",
+                "appId": "1:255608691346:web:508d50c63b91339400644b"
+            },
+            {
+                "apiKey": "AIzaSyCFPtkxKyyVBxSbPOSBwDSzPQwIkRrccCU",
+                "authDomain": "spartafest-light-show-2-d9b72.firebaseapp.com",
+                "projectId": "spartafest-light-show-2-d9b72",
+                "storageBucket": "spartafest-light-show-2-d9b72.firebasestorage.app",
+                "messagingSenderId": "498521151305",
+                "appId": "1:498521151305:web:6139469a9f583446d16c98"
+            },
+            {
+                "apiKey": "AIzaSyCnYO9Rt1uZbKrH1mEbHkPwtCdJXVWxyRY",
+                "authDomain": "spartafest-light-show-4-f27d6.firebaseapp.com",
+                "projectId": "spartafest-light-show-4-f27d6",
+                "storageBucket": "spartafest-light-show-4-f27d6.firebasestorage.app",
+                "messagingSenderId": "916591661161",
+                "appId": "1:916591661161:web:3421d18ed1699d2f93d2f8"
+            },
+            {
+                "apiKey": "AIzaSyC5MndnjAbCcU4jWPR7L998gr9Rde0U0ug",
+                "authDomain": "spartafest-light-show-5-be1f6.firebaseapp.com",
+                "projectId": "spartafest-light-show-5-be1f6",
+                "storageBucket": "spartafest-light-show-5-be1f6.firebasestorage.app",
+                "messagingSenderId": "655177381425",
+                "appId": "1:655177381425:web:81e7880fe1eb675574c710"
+            },
+            {
+                "apiKey": "AIzaSyDlHjgS2XleMMmLAF_h6ofMpg4BJo_CQ8w",
+                "authDomain": "spartafest-light-show-6-44d06.firebaseapp.com",
+                "projectId": "spartafest-light-show-6-44d06",
+                "storageBucket": "spartafest-light-show-6-44d06.firebasestorage.app",
+                "messagingSenderId": "283171319030",
+                "appId": "1:283171319030:web:8eedec7714e3cc87ec50d7"
+            },
+            {
+                "apiKey": "AIzaSyB1v4PSI9OxfHJYhPoVM0_Qh0uxDNzCMXE",
+                "authDomain": "spartafest-light-show-7-588d2.firebaseapp.com",
+                "projectId": "spartafest-light-show-7-588d2",
+                "storageBucket": "spartafest-light-show-7-588d2.firebasestorage.app",
+                "messagingSenderId": "251984493726",
+                "appId": "1:251984493726:web:657169f2e496e08402cf8f"
+            },
+            {
+                "apiKey": "AIzaSyDTx7NhXeAvCnREgIfZydBYf3UzBdomobY",
+                "authDomain": "spartafest-light-show-8-b5864.firebaseapp.com",
+                "projectId": "spartafest-light-show-8-b5864",
+                "storageBucket": "spartafest-light-show-8-b5864.firebasestorage.app",
+                "messagingSenderId": "1015093600448",
+                "appId": "1:1015093600448:web:7a10c631e23f5a9aed0d25"
+            },
+            {
+                "apiKey": "AIzaSyAlVUb62yYv_1QeQIzZlebcxWWCXDXyZ3I",
+                "authDomain": "spartafest-light-show-9-da49a.firebaseapp.com",
+                "projectId": "spartafest-light-show-9-da49a",
+                "storageBucket": "spartafest-light-show-9-da49a.firebasestorage.app",
+                "messagingSenderId": "826217860966",
+                "appId": "1:826217860966:web:368203a98f7e07b2bc82a7"
+            },
+            {
+                "apiKey": "AIzaSyA-NcX93vKatTIPCpi4XT8ZdZkqr-mrvqg",
+                "authDomain": "spartafest-light-show-10-7c6bf.firebaseapp.com",
+                "projectId": "spartafest-light-show-10-7c6bf",
+                "storageBucket": "spartafest-light-show-10-7c6bf.firebasestorage.app",
+                "messagingSenderId": "987866528154",
+                "appId": "1:987866528154:web:4a279dbdd9d7b773832223"
+            },
+            {
+                "apiKey": "AIzaSyARB-o4CvM6cpZtXNICxGO1nEl43x9ZydE",
+                "authDomain": "spartafest-light-show-11-4916a.firebaseapp.com",
+                "projectId": "spartafest-light-show-11-4916a",
+                "storageBucket": "spartafest-light-show-11-4916a.firebasestorage.app",
+                "messagingSenderId": "906888421105",
+                "appId": "1:906888421105:web:b4d911ed1036727c82d350"
+            }
+        ];
+
+        const workingIndexes = Array.from({ length: 82 }, (_, i) => i); // 82 shards
+        const brokenIndexes = [];
+
+        const firebaseApps = firebaseConfigs.map((config, index) => {
+            try {
+                return index === 0 ? firebase.initializeApp(config) : firebase.initializeApp(config, `app${index}`);
+            } catch (err) {
+                console.error(`❌ Firebase app ${index + 1} failed to initialize`, err);
+                brokenIndexes.push(index);
+                return null;
+            }
+        });
+
+        function getOrCreateDeviceId() {
+            let uid = localStorage.getItem('deviceUID');
+            if (!uid) {
+                uid = 'LED_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('deviceUID', uid);
+            }
+            return uid;
+        }
+
+        function getUserDb() {
+            const uid = getOrCreateDeviceId();
+            const numericId = uid.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+            const dbIndex = Math.floor(numericId / 75); // 75 users per Firestore shard across 82 DBs (6150 users total)
+
+            if (!workingIndexes.includes(dbIndex)) {
+                console.warn(`⚠️ DB index ${dbIndex} not working. Falling back.`);
+                const fallback = workingIndexes[0];
+                const fallbackApp = fallback === 0 ? firebase.app() : firebase.app(`app${fallback}`);
+                return fallbackApp.firestore();
+            }
+
+            const app = dbIndex === 0 ? firebase.app() : firebase.app(`app${dbIndex}`);
+            return app.firestore();
+        }
+
+        // Usage
+        const db = getUserDb();
         const auth = firebase.auth();
         
         // State
@@ -735,10 +1368,6 @@
         let currentSpeed = 1;
         let userCount = 0;
         let isAuthenticated = false;
-        let musicSyncActive = false;
-        let audioContext;
-        let audioAnalyser;
-        let beatDetectionActive = false;
         let customPattern = {
             colors: ['#ff0000', '#00ff00', '#0000ff'],
             type: 'sequence'
@@ -756,7 +1385,6 @@
         const connectionCard = document.getElementById('connectionCard');
         const connectionStatus = document.getElementById('connectionStatus');
         const userCountEl = document.getElementById('userCount');
-        const musicStatusEl = document.getElementById('musicStatus');
         
         const colorButtons = document.querySelectorAll('.color-btn');
         const customColor = document.getElementById('customColor');
@@ -770,36 +1398,15 @@
         const intensitySlider = document.getElementById('intensity');
         const intensityValue = document.getElementById('intensityValue');
         
-        const musicFile = document.getElementById('musicFile');
-        const fileName = document.getElementById('fileName');
-        const playMusic = document.getElementById('playMusic');
-        const stopMusic = document.getElementById('stopMusic');
-        const syncLights = document.getElementById('syncLights');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const visualizer = document.getElementById('visualizer');
-        const sensitivitySlider = document.getElementById('sensitivity');
-        const sensitivityValue = document.getElementById('sensitivityValue');
-        
         const preview = document.getElementById('preview');
         const previewPattern = document.getElementById('previewPattern');
         const previewLights = document.querySelectorAll('.preview-light');
         
         const sendButton = document.getElementById('sendCommand');
-        const testButton = document.getElementById('testPattern');
         const emergencyButton = document.getElementById('emergencyStop');
         
         const shardCount = 10;
 
-        function broadcastToShards(command) {
-            const batch = db.batch();
-            for (let i = 0; i < shardCount; i++) {
-                const ref = db.collection('commands_sharded').doc(`shard_${i}`);
-                batch.set(ref, command, { merge: true });
-            }
-            batch.commit()
-                .then(() => console.log('✅ Command sent to all shards.'))
-                .catch(err => console.error('❌ Broadcast failed:', err));
-        }
         // Authentication
         function login() {
             const email = adminUsername.value.trim();
@@ -813,35 +1420,47 @@
                     localStorage.setItem('adminAuth', 'true');
                     loginError.textContent = '';
                     init();
+                    showToast("✅ Logged in successfully.");
                 })
                 .catch((error) => {
                     loginError.textContent = 'Login failed: ' + error.message;
                     adminPassword.value = '';
+                    showToast("❌ Login failed. Check credentials.");
                 });
         }
 
         function logout() {
-            isAuthenticated = false;
-            localStorage.removeItem('adminAuth');
-            loginScreen.classList.remove('hidden');
-            mainApp.style.display = 'none';
-            stopMusicSync();
+            auth.signOut().then(() => {
+                isAuthenticated = false;
+                localStorage.removeItem('adminAuth');
+                loginScreen.classList.remove('hidden');
+                mainApp.style.display = 'none';
+                showToast("👋 Logged out successfully.");
+            }).catch((error) => {
+                console.error("Logout failed:", error);
+                showToast("❌ Logout failed.");
+            });
         }
         
         function checkAuth() {
-            const savedAuth = localStorage.getItem('adminAuth');
-            if (savedAuth === 'true') {
-                if (verify === ADMIN_CREDENTIALS.password) {
+            auth.onAuthStateChanged((user) => {
+                const wasAuthenticated = localStorage.getItem('adminAuth') === 'true';
+
+                if (user && wasAuthenticated) {
                     isAuthenticated = true;
                     loginScreen.classList.add('hidden');
                     mainApp.style.display = 'block';
-                    init();
-                    } else {
-                    logout();
+                    showToast("🔄 Session restored. Welcome back!");
+                    init(); // re-run any logic to set up the admin dashboard
+                } else {
+                    localStorage.removeItem('adminAuth');
+                    isAuthenticated = false;
+                    loginScreen.classList.remove('hidden');
+                    mainApp.style.display = 'none';
                 }
-            }
+            });
         }
-        
+
         // Event listeners for authentication
         loginBtn.addEventListener('click', login);
         logoutBtn.addEventListener('click', logout);
@@ -861,10 +1480,9 @@
             setupColorControls();
             setupEffectControls();
             setupSliderControls();
-            setupMusicControls();
             setupPatternDesigner();
             setupPreview();
-            startUserCountListener();
+            updateUserCountManually();
             updatePreview();
             const savedPatternColors = JSON.parse(localStorage.getItem('patternColors'));
                 if (savedPatternColors && Array.isArray(savedPatternColors)) {
@@ -874,6 +1492,9 @@
                     });
                 }
         }
+        document.getElementById('refreshUserCount').addEventListener('click', () => {
+            updateUserCountManually();
+        });
         
         // Firebase connection and user count
         function updateConnectionStatus() {
@@ -888,14 +1509,26 @@
                 });
         }
         
-        function startUserCountListener() {
-            // Listen for active users
-            db.collection('system').doc('userCount').onSnapshot((doc) => {
-                if (doc.exists) {
-                    userCountEl.textContent = doc.data().count || 0;
+        async function updateUserCountManually() {
+            let total = 0;
+
+            for (let index of workingIndexes) {
+                try {
+                    const app = index === 0 ? firebase.app() : firebase.app(`app${index}`);
+                    const dbInstance = app.firestore();
+                    const doc = await dbInstance.collection('system').doc('userCount').get();
+                    if (doc.exists) {
+                        total += doc.data().count || 0;
+                    }
+                } catch (err) {
+                    console.warn(`Failed to fetch userCount from shard ${index}`, err);
                 }
-            });
+            }
+
+            userCountEl.textContent = total;
+            showToast("User Count Updated");
         }
+
         
         // Color control
         function setupColorControls() {
@@ -969,164 +1602,19 @@
             });
         }
         
-        // Music controls
-        function setupMusicControls() {
-            musicFile.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    fileName.textContent = file.name;
-                    const url = URL.createObjectURL(file);
-                    audioPlayer.src = url;
-                }
-            });
-            
-            playMusic.addEventListener('click', () => {
-                if (audioPlayer.src) {
-                    audioPlayer.play();
-                    musicStatusEl.textContent = 'Playing';
-                    setupAudioAnalysis();
-                }
-            });
-            
-            stopMusic.addEventListener('click', () => {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                musicStatusEl.textContent = 'Stopped';
-                stopMusicSync();
-            });
-            
-            syncLights.addEventListener('click', () => {
-                if (audioPlayer.src && !audioPlayer.paused) {
-                    musicSyncActive = !musicSyncActive;
-                    syncLights.textContent = musicSyncActive ? '🎆 Stop Sync' : '🎆 Sync Lights';
-                    
-                    if (musicSyncActive) {
-                        startBeatDetection();
-                    } else {
-                        stopBeatDetection();
-                    }
-                }
-            });
-            
-            audioPlayer.addEventListener('ended', () => {
-                musicStatusEl.textContent = 'Stopped';
-                stopMusicSync();
-            });
-        }
-        
-        // Audio analysis
-        function setupAudioAnalysis() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaElementSource(audioPlayer);
-                audioAnalyser = audioContext.createAnalyser();
-                audioAnalyser.fftSize = 256;
-                source.connect(audioAnalyser);
-                audioAnalyser.connect(audioContext.destination);
-            }
-            
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            
-            startVisualizer();
-        }
-        
-        function startVisualizer() {
-            const bufferLength = audioAnalyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            
-            // Create visualizer bars
-            visualizer.innerHTML = '';
-            for (let i = 0; i < 50; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'visualizer-bar';
-                bar.style.left = (i * 4) + 'px';
-                visualizer.appendChild(bar);
-            }
-            
-            const bars = visualizer.querySelectorAll('.visualizer-bar');
-            
-            function animate() {
-                if (!audioPlayer.paused) {
-                    audioAnalyser.getByteFrequencyData(dataArray);
-                    
-                    bars.forEach((bar, i) => {
-                        const value = dataArray[i * 5] || 0;
-                        const height = (value / 255) * 80;
-                        bar.style.height = height + 'px';
-                    });
-                    
-                    requestAnimationFrame(animate);
-                }
-            }
-            animate();
-        }
-        
-        function startBeatDetection() {
-            if (!audioAnalyser) return;
-            
-            beatDetectionActive = true;
-            const bufferLength = audioAnalyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            let lastBeat = 0;
-            
-            function detectBeat() {
-                if (!beatDetectionActive || audioPlayer.paused) return;
-                
-                audioAnalyser.getByteFrequencyData(dataArray);
-                
-                // Calculate bass energy
-                let bassEnergy = 0;
-                for (let i = 1; i < 10; i++) {
-                    bassEnergy += dataArray[i];
-                }
-                bassEnergy /= 9;
-                
-                const sensitivity = sensitivitySlider.value / 100;
-                const threshold = 50 + (sensitivity * 100);
-                const now = Date.now();
-                
-                if (bassEnergy > threshold && (now - lastBeat) > 200) {
-                    triggerBeatEffect();
-                    lastBeat = now;
-                }
-                
-                setTimeout(detectBeat, 50);
-            }
-            
-            detectBeat();
-        }
-        
-        function triggerBeatEffect() {
-            const beatColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-            const randomColor = beatColors[Math.floor(Math.random() * beatColors.length)];
-
-            const command = {
-                type: 'beat',
-                color: randomColor,
-                effect: 'flash', // enhanced for stronger visual
-                intensity: 1, // always full brightness on beat
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            sendCommandToDevices(command);
-        }
-        
-        function stopBeatDetection() {
-            beatDetectionActive = false;
-        }
-        
-        function stopMusicSync() {
-            musicSyncActive = false;
-            beatDetectionActive = false;
-            syncLights.textContent = '🎆 Sync Lights';
-        }
-        
         // Preview system
         function setupPreview() {
             updatePreview();
             setInterval(updatePreview, 100);
+        }
+
+        function showToast(message) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
         
         function updatePreview() {
@@ -1183,43 +1671,40 @@
         let lastCommand = null;
         let debounceTimer;
 
-        function sendCommandToDevices(customCommand = null) {
-            const command = customCommand || {
-                color: currentColor,
-                effect: currentEffect,
-                intensity: currentIntensity,
-                speed: currentSpeed,
-                pattern: currentEffect === 'pattern' ? customPattern : null,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                source: 'admin'
-            };
+        function broadcastToAllDbs(command) {
+            workingIndexes.forEach(index => {
+                try {
+                    const app = index === 0 ? firebase.app() : firebase.app(`app${index}`);
+                    const db = app.firestore();
+                    const shardCount = 10;
 
-            // Avoid writing if the command hasn't changed
-            if (JSON.stringify(command) === JSON.stringify(lastCommand)) return;
-            lastCommand = command;
-
-            // Debounce to reduce Firestore writes
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                broadcastToShards(command);
-            }, 300); // Adjust delay as needed
+                    for (let i = 0; i < shardCount; i++) {
+                        const ref = db.collection("commands_sharded").doc(`shard_${i}`);
+                        ref.set(command, { merge: true });
+                    }
+                } catch (e) {
+                    console.error(`🔥 Failed to write to DB index ${index}`, e);
+                }
+            });
         }
         
         // Action buttons
         sendButton.addEventListener('click', () => {
-            sendCommandToDevices();
-        });
-        
-        testButton.addEventListener('click', () => {
-            // Flash preview for testing
-            previewPattern.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                previewPattern.style.transform = 'scale(1)';
-            }, 200);
+            if (confirm("Send command to all devices?")) {
+                broadcastToAllDbs({
+                    color: currentColor,
+                    effect: currentEffect,
+                    intensity: currentIntensity,
+                    speed: currentSpeed,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    source: "admin"
+                });
+                showToast("🚀 Command sent to all devices");
+            }
         });
         
         emergencyButton.addEventListener('click', () => {
-            if (confirm('Emergency stop will turn off all lights. Continue?')) {
+            if(confirm('Emergency stop will turn off all lights. Continue?')) {
                 const emergencyCommand = {
                     color: '#000000',
                     effect: 'solid',
@@ -1228,9 +1713,8 @@
                     source: 'admin'
                 };
                 
-                sendCommandToDevices(emergencyCommand);
-                stopMusicSync();
-                alert('Emergency stop activated!');
+                broadcastToAllDbs(emergencyCommand);
+                showToast("Emergency stop activated!");
             }
         });
         
@@ -1251,7 +1735,7 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
-            resetSessionTimeout();
+            //resetSessionTimeout();
         });
         
         // Prevent right-click context menu for security
@@ -1268,6 +1752,78 @@
                 e.preventDefault();
                 return false;
             }
+        });
+
+        async function setStandbyMode(shardCount = 10) {
+            const currentUser = firebase.auth().currentUser;
+            if (!currentUser) {
+                showToast("❌ Admin login required.");
+                return;
+            }
+
+            const command = { effect: "standby" };
+
+            for (const config of firebaseConfigs) {
+                try {
+                    const app = firebase.initializeApp(config, config.projectId + "-standby");
+                    const db = firebase.firestore(app);
+
+                    const batch = db.batch();
+                    for (let i = 0; i < shardCount; i++) {
+                        const ref = db.collection('commands_sharded').doc(`shard_${i}`);
+                        batch.set(ref, command, { merge: true });
+                    }
+
+                    await batch.commit();
+                    await app.delete();
+                    console.log(`✅ Standby broadcasted to ${config.projectId}`);
+                } catch (err) {
+                    console.error(`❌ Error broadcasting standby to ${config.projectId}`, err);
+                }
+            }
+            showToast("📴 Standby mode activated on all devices.");
+        }
+
+        document.getElementById("standbyBtn").addEventListener("click", async () => {
+            const confirmed = confirm("Put all devices into Standby mode?");
+            if (confirmed) {
+                await setStandbyMode(); // default 5 shards
+            }
+        });
+
+        document.getElementById("clearAllBtn").addEventListener("click", async () => {
+            const confirmed = confirm("⚠️ Are you sure you want to CLEAR ALL DATABASES? This action cannot be undone.");
+            if (!confirmed) return;
+            
+            const collectionsToClear = ["users", "system"]; // Customize based on your Firestore structure
+
+            for (const config of firebaseConfigs) {
+                try {
+                    const app = firebase.initializeApp(config, config.projectId + "-clear");
+                    const db = firebase.firestore(app);
+
+                    for (const collectionName of collectionsToClear) {
+                        const snapshot = await db.collection(collectionName).get();
+                        const batch = db.batch();
+                        snapshot.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+
+                        if (!snapshot.empty) {
+                            await batch.commit();
+                            console.log(`Cleared '${collectionName}' in ${config.projectId}`);
+                        } else {
+                            console.log(`No documents in '${collectionName}' for ${config.projectId}`);
+                        }
+                    }
+
+                    await app.delete();
+                } catch (err) {
+                    console.error(`❌ Error clearing ${config.projectId}:`, err);
+                }
+            }
+
+            showToast("✅ All specified databases and collections have been cleared.");
         });
         
         console.log('🔐 Event LED Admin Panel Loaded - Unauthorized access is prohibited');
